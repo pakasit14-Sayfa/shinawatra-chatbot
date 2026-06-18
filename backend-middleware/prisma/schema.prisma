@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ==========================================
+// 1. Core Chat & Users
+// ==========================================
+
+model User {
+  id               Int           @id @default(autoincrement())
+  platform         String        @db.VarChar(50)
+  platform_user_id String        @unique @db.VarChar(255)
+  display_name     String?       @db.VarChar(255)
+  created_at       DateTime      @default(now())
+
+  // Relations
+  chat_sessions    ChatSession[]
+  student_lead     StudentLead?
+
+  @@map("users")
+}
+
+model ChatSession {
+  id                  Int       @id @default(autoincrement())
+  user_id             Int
+  status              String    @db.VarChar(50)
+  current_agent_id    Int?
+  handled_by_admin_id Int?
+  latest_tag          String?   @db.VarChar(100)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  // Relations
+  user                User      @relation(fields: [user_id], references: [id])
+  agent               AiAgent?  @relation(fields: [current_agent_id], references: [id])
+  admin               Admin?    @relation(fields: [handled_by_admin_id], references: [id])
+  chat_logs           ChatLog[]
+
+  @@map("chat_sessions")
+}
+
+model ChatLog {
+  id          BigInt   @id @default(autoincrement())
+  session_id  Int
+  sender_type String   @db.VarChar(50)
+  agent_id    Int?
+  admin_id    Int?
+  message     String?  @db.Text
+  raw_tag     String?  @db.VarChar(100)
+  created_at  DateTime @default(now())
+
+  // Relations
+  session     ChatSession @relation(fields: [session_id], references: [id])
+  agent       AiAgent?    @relation(fields: [agent_id], references: [id])
+  admin       Admin?      @relation(fields: [admin_id], references: [id])
+  attachments ChatAttachment[]
+
+  @@map("chat_logs")
+}
+
+// ==========================================
+// 2. Admission Leads
+// ==========================================
+
+model StudentLead {
+  id                Int      @id @default(autoincrement())
+  user_id           Int      @unique
+  education_bg      String?  @db.VarChar(255)
+  occupation        String?  @db.VarChar(255)
+  experience        String?  @db.VarChar(255)
+  interested_degree String?  @db.VarChar(100)
+  interested_major  String?  @db.VarChar(255)
+  lead_status       String   @db.VarChar(100)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Relations
+  user              User     @relation(fields: [user_id], references: [id])
+
+  @@map("student_leads")
+}
+
+// ==========================================
+// 3. Multi-Agent System
+// ==========================================
+
+model AiAgent {
+  id           Int     @id
+  agent_name   String  @unique @db.VarChar(100)
+  dify_api_key String  @db.VarChar(255)
+  description  String? @db.Text
+
+  // Relations
+  chat_sessions ChatSession[]
+  chat_logs     ChatLog[]
+
+  @@map("ai_agents")
+}
+
+// ==========================================
+// 4. Access Control (RBAC)
+// ==========================================
+
+model Admin {
+  id            Int      @id @default(autoincrement())
+  username      String   @unique @db.VarChar(100)
+  password_hash String   @db.VarChar(255)
+  display_name  String   @db.VarChar(255)
+  role_id       Int
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+
+  // Relations
+  role          Role          @relation(fields: [role_id], references: [id])
+  chat_sessions ChatSession[]
+  chat_logs     ChatLog[]
+
+  @@map("admins")
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  role_name   String   @unique @db.VarChar(100)
+  description String?  @db.Text
+
+  // Relations
+  admins           Admin[]
+  role_permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id              Int      @id @default(autoincrement())
+  permission_name String   @unique @db.VarChar(100)
+  description     String?  @db.Text
+
+  // Relations
+  role_permissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  role_id       Int
+  permission_id Int
+
+  // Relations
+  role       Role       @relation(fields: [role_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
+
+  @@id([role_id, permission_id])
+  @@map("role_permissions")
+}
+
+// ==========================================
+// 5. Media & File Storage
+// ==========================================
+
+model ChatAttachment {
+  id              Int      @id @default(autoincrement())
+  log_id          BigInt
+  attachment_type String   @db.VarChar(50)
+  file_name       String?  @db.VarChar(255)
+  storage_url     String   @db.Text
+  file_size       Int?
+  created_at      DateTime @default(now())
+
+  // Relations
+  chat_log        ChatLog  @relation(fields: [log_id], references: [id])
+
+  @@map("chat_attachments")
+}

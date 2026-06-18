@@ -1,0 +1,143 @@
+2026-06-15 14:19:26: [Dify Error] {
+2026-06-15 14:19:26:   code: 'unauthorized',
+2026-06-15 14:19:26:   message: 'Access token is invalid',
+2026-06-15 14:19:26:   status: 401
+2026-06-15 14:19:26: }
+2026-06-15 14:19:26: [queue] error for user 26808689048802534: Request failed with status code 401
+2026-06-15 14:19:41: [Dify Error] {
+2026-06-15 14:19:41:   code: 'unauthorized',
+2026-06-15 14:19:41:   message: 'Access token is invalid',
+2026-06-15 14:19:41:   status: 401
+2026-06-15 14:19:41: }
+2026-06-15 14:19:41: [queue] error for user Uae9f7df4f25048e403b22c26f5e4c21c: Request failed with status code 401
+2026-06-15 14:58:56: [FB send error] (#100) ไม่พบผู้ใช้ที่แมตช์
+2026-06-15 16:05:49: [Dify Error] <!doctype html>
+2026-06-15 16:05:49: <html lang=en>
+2026-06-15 16:05:49: <title>404 Not Found</title>
+2026-06-15 16:05:49: <h1>Not Found</h1>
+2026-06-15 16:05:49: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:05:49: 
+2026-06-15 16:05:49: [queue] error for user 27230454543315641: Request failed with status code 404
+2026-06-15 16:06:10: [Dify Error] <!doctype html>
+2026-06-15 16:06:10: <html lang=en>
+2026-06-15 16:06:10: <title>404 Not Found</title>
+2026-06-15 16:06:10: <h1>Not Found</h1>
+2026-06-15 16:06:10: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:06:10: 
+2026-06-15 16:06:10: [queue] error for user 27230454543315641: Request failed with status code 404
+2026-06-15 16:07:04: [Dify Error] <!doctype html>
+2026-06-15 16:07:04: <html lang=en>
+2026-06-15 16:07:04: <title>404 Not Found</title>
+2026-06-15 16:07:04: <h1>Not Found</h1>
+2026-06-15 16:07:04: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:07:04: 
+2026-06-15 16:07:04: [queue] error for user 36132380839739400: Request failed with status code 404
+2026-06-15 16:07:09: [Dify Error] <!doctype html>
+2026-06-15 16:07:09: <html lang=en>
+2026-06-15 16:07:09: <title>404 Not Found</title>
+2026-06-15 16:07:09: <h1>Not Found</h1>
+2026-06-15 16:07:09: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:07:09: 
+2026-06-15 16:07:09: [queue] error for user Uae9f7df4f25048e403b22c26f5e4c21c: Request failed with status code 404
+2026-06-15 16:07:54: [Dify Error] <!doctype html>
+2026-06-15 16:07:54: <html lang=en>
+2026-06-15 16:07:54: <title>404 Not Found</title>
+2026-06-15 16:07:54: <h1>Not Found</h1>
+2026-06-15 16:07:54: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:07:54: 
+2026-06-15 16:07:54: [queue] error for user 36132380839739400: Request failed with status code 404
+2026-06-15 16:10:23: [Dify Error] <!doctype html>
+2026-06-15 16:10:23: <html lang=en>
+2026-06-15 16:10:23: <title>404 Not Found</title>
+2026-06-15 16:10:23: <h1>Not Found</h1>
+2026-06-15 16:10:23: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:10:23: 
+2026-06-15 16:10:23: [queue] error for user 26796401800031792: Request failed with status code 404
+2026-06-15 16:10:38: [Dify Error] <!doctype html>
+2026-06-15 16:10:38: <html lang=en>
+2026-06-15 16:10:38: <title>404 Not Found</title>
+2026-06-15 16:10:38: <h1>Not Found</h1>
+2026-06-15 16:10:38: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:10:38: 
+2026-06-15 16:10:38: [queue] error for user 36132380839739400: Request failed with status code 404
+2026-06-15 16:12:52: [Dify Error] <!doctype html>
+2026-06-15 16:12:52: <html lang=en>
+2026-06-15 16:12:52: <title>404 Not Found</title>
+2026-06-15 16:12:52: <h1>Not Found</h1>
+2026-06-15 16:12:52: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:12:52: 
+2026-06-15 16:12:52: [queue] error for user 26796401800031792: Request failed with status code 404
+2026-06-15 16:13:39: [Dify Error] <!doctype html>
+2026-06-15 16:13:39: <html lang=en>
+2026-06-15 16:13:39: <title>404 Not Found</title>
+2026-06-15 16:13:39: <h1>Not Found</h1>
+2026-06-15 16:13:39: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:13:39: 
+2026-06-15 16:13:39: [queue] error for user 36132380839739400: Request failed with status code 404
+2026-06-15 16:30:58: [ActiveUsers] ดึงชื่อไม่สำเร็จ (meta): {
+2026-06-15 16:30:58:   error: {
+2026-06-15 16:30:58:     message: "Unsupported get request. Object with ID '27230454543315641' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+2026-06-15 16:30:58:     type: 'GraphMethodException',
+2026-06-15 16:30:58:     code: 100,
+2026-06-15 16:30:58:     error_subcode: 33,
+2026-06-15 16:30:58:     fbtrace_id: 'A--YpDqnddQSwFAWU7iyPyH'
+2026-06-15 16:30:58:   }
+2026-06-15 16:30:58: }
+2026-06-15 16:31:01: [Dify Error] <!doctype html>
+2026-06-15 16:31:01: <html lang=en>
+2026-06-15 16:31:01: <title>404 Not Found</title>
+2026-06-15 16:31:01: <h1>Not Found</h1>
+2026-06-15 16:31:01: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:31:01: 
+2026-06-15 16:31:01: [queue] error for user 27230454543315641: Request failed with status code 404
+2026-06-15 16:31:01: [ActiveUsers] ดึงชื่อไม่สำเร็จ (meta): {
+2026-06-15 16:31:01:   error: {
+2026-06-15 16:31:01:     message: "Unsupported get request. Object with ID '27230454543315641' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+2026-06-15 16:31:01:     type: 'GraphMethodException',
+2026-06-15 16:31:01:     code: 100,
+2026-06-15 16:31:01:     error_subcode: 33,
+2026-06-15 16:31:01:     fbtrace_id: 'AZ9eTWYIbhYtZdfnIZjHldX'
+2026-06-15 16:31:01:   }
+2026-06-15 16:31:01: }
+2026-06-15 16:31:03: [Dify Error] <!doctype html>
+2026-06-15 16:31:03: <html lang=en>
+2026-06-15 16:31:03: <title>404 Not Found</title>
+2026-06-15 16:31:03: <h1>Not Found</h1>
+2026-06-15 16:31:03: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:31:03: 
+2026-06-15 16:31:03: [queue] error for user 27230454543315641: Request failed with status code 404
+2026-06-15 16:36:36: [Dify Error] <!doctype html>
+2026-06-15 16:36:36: <html lang=en>
+2026-06-15 16:36:36: <title>404 Not Found</title>
+2026-06-15 16:36:36: <h1>Not Found</h1>
+2026-06-15 16:36:36: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:36:36: 
+2026-06-15 16:36:36: [queue] error for user U426bf34fa62073881e874416e588dd15: Request failed with status code 404
+2026-06-15 16:49:09: [Dify Error] <!doctype html>
+2026-06-15 16:49:09: <html lang=en>
+2026-06-15 16:49:09: <title>404 Not Found</title>
+2026-06-15 16:49:09: <h1>Not Found</h1>
+2026-06-15 16:49:09: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:49:09: 
+2026-06-15 16:49:09: [queue] error for user U426bf34fa62073881e874416e588dd15: Request failed with status code 404
+2026-06-15 16:49:36: [Dify Error] <!doctype html>
+2026-06-15 16:49:36: <html lang=en>
+2026-06-15 16:49:36: <title>404 Not Found</title>
+2026-06-15 16:49:36: <h1>Not Found</h1>
+2026-06-15 16:49:36: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:49:36: 
+2026-06-15 16:49:36: [queue] error for user 36132380839739400: Request failed with status code 404
+2026-06-15 16:52:56: [Dify Error] <!doctype html>
+2026-06-15 16:52:56: <html lang=en>
+2026-06-15 16:52:56: <title>404 Not Found</title>
+2026-06-15 16:52:56: <h1>Not Found</h1>
+2026-06-15 16:52:56: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:52:56: 
+2026-06-15 16:52:56: [queue] error for user Ufc585127e456c822a523cb4a205e6f99: Request failed with status code 404
+2026-06-15 16:53:13: [Dify Error] <!doctype html>
+2026-06-15 16:53:13: <html lang=en>
+2026-06-15 16:53:13: <title>404 Not Found</title>
+2026-06-15 16:53:13: <h1>Not Found</h1>
+2026-06-15 16:53:13: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+2026-06-15 16:53:13: 
+2026-06-15 16:53:13: [queue] error for user Ufc585127e456c822a523cb4a205e6f99: Request failed with status code 404

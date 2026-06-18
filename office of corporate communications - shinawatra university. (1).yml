@@ -1,0 +1,1057 @@
+app:
+  description: Chat App
+  icon: 0b7682f0-35f7-47ec-9ed3-f6f7d9c9af91
+  icon_background: ''
+  icon_type: image
+  mode: advanced-chat
+  name: office of corporate communications - shinawatra university.
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.4.2@21195ee1321849e0a7d4b3f6b2fd8c2be23ea6c7182e1b444ecc4c1711b52468
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables:
+  - description: ''
+    id: c8f525c9-0ae9-4270-ae17-3aeb34b284d7
+    name: education_degree
+    selector:
+    - conversation
+    - education_degree
+    value: ''
+    value_type: string
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-true-1781582929810-target
+      selected: false
+      source: '1781583119887'
+      sourceHandle: 'true'
+      target: '1781582929810'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-b329b059-36e8-4768-86d8-59c29b145d0a-1781583264907-target
+      selected: false
+      source: '1781583119887'
+      sourceHandle: b329b059-36e8-4768-86d8-59c29b145d0a
+      target: '1781583264907'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-5972420b-0366-4766-b59c-b8afc596f489-1781583286537-target
+      selected: false
+      source: '1781583119887'
+      sourceHandle: 5972420b-0366-4766-b59c-b8afc596f489
+      target: '1781583286537'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-22594e5b-8e04-4cca-8d59-3925a12c0033-1781583306399-target
+      selected: false
+      source: '1781583119887'
+      sourceHandle: 22594e5b-8e04-4cca-8d59-3925a12c0033
+      target: '1781583306399'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-c69c2830-5a28-487a-824b-c602813dd3d0-1781583331118-target
+      selected: false
+      source: '1781583119887'
+      sourceHandle: c69c2830-5a28-487a-824b-c602813dd3d0
+      target: '1781583331118'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781582929810-source-1781586295912-target
+      selected: false
+      source: '1781582929810'
+      sourceHandle: source
+      target: '1781586295912'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781583264907-source-1781586298185-target
+      selected: false
+      source: '1781583264907'
+      sourceHandle: source
+      target: '1781586298185'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781583286537-source-1781586301980-target
+      selected: false
+      source: '1781583286537'
+      sourceHandle: source
+      target: '1781586301980'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781583306399-source-1781586303846-target
+      selected: false
+      source: '1781583306399'
+      sourceHandle: source
+      target: '1781586303846'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781583331118-source-1781586305511-target
+      selected: false
+      source: '1781583331118'
+      sourceHandle: source
+      target: '1781586305511'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1781583348593-source-1781586307536-target
+      selected: false
+      source: '1781583348593'
+      sourceHandle: source
+      target: '1781586307536'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1780987487599-source-1781587853209-target
+      selected: false
+      source: '1780987487599'
+      sourceHandle: source
+      target: '1781587853209'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: start
+        targetType: knowledge-retrieval
+      id: 1780974928576-source-1780987487599-target
+      source: '1780974928576'
+      sourceHandle: source
+      target: '1780987487599'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1781587853209-source-1781196562702-target
+      source: '1781587853209'
+      sourceHandle: source
+      target: '1781196562702'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1781583119887-false-1781583348593-target
+      source: '1781583119887'
+      sourceHandle: 'false'
+      target: '1781583348593'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1781196562702-source-1781800000000-target
+      source: '1781196562702'
+      sourceHandle: source
+      target: '1781800000000'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1781800000000-true-1781800000001-target
+      source: '1781800000000'
+      sourceHandle: 'true'
+      target: '1781800000001'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1781800000000-false-1781583119887-target
+      source: '1781800000000'
+      sourceHandle: 'false'
+      target: '1781583119887'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: เริ่ม
+        type: start
+        variables: []
+      height: 73
+      id: '1780974928576'
+      position:
+        x: 608.7051275659544
+        y: 169.83333333333334
+      positionAbsolute:
+        x: 608.7051275659544
+        y: 169.83333333333334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - 8kp7OYV+/krO563NM3EciuFfmq4D693V6yf8e6gUPyMmzG+x1Q21roQWiLdiuXx7
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          top_k: 4
+          weights:
+            keyword_setting:
+              keyword_weight: 0
+            vector_setting:
+              embedding_model_name: text-embedding-3-large
+              embedding_provider_name: langgenius/openai/openai
+              vector_weight: 1
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - sys
+        - query
+        retrieval_mode: multiple
+        selected: false
+        title: การดึงความรู้
+        type: knowledge-retrieval
+      height: 90
+      id: '1780987487599'
+      position:
+        x: 683.0292572483999
+        y: 326.31966111859106
+      positionAbsolute:
+        x: 683.0292572483999
+        y: 326.31966111859106
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import re\n\ndef main(text: str) -> dict:\n    # ค้นหาข้อความในวงเล็บก้ามปู\
+          \ เช่น [สถานะ:ป.โทบริหาร]\n    pattern = r\"\\[.*?\\]\"\n    match = re.search(pattern,\
+          \ text)\n    \n    if match:\n        tag = match.group(0)  # ดึง Tag ออกมา\n\
+          \        clean_text = re.sub(pattern, \"\", text).strip() # ลบ Tag ออกจากข้อความหลัก\n\
+          \    else:\n        tag = \"\"\n        clean_text = text.strip()\n    \
+          \    \n    return {\n        \"tag\": tag,\n        \"clean_text\": clean_text\n\
+          \    }"
+        code_language: python3
+        outputs:
+          clean_text:
+            children: null
+            type: string
+          tag:
+            children: null
+            type: string
+        selected: false
+        title: Code 2
+        type: code
+        variables:
+        - value_selector:
+          - '1781587853209'
+          - text
+          value_type: string
+          variable: text
+      height: 52
+      id: '1781196562702'
+      position:
+        x: 1400.758909142729
+        y: 0
+      positionAbsolute:
+        x: 1400.758909142729
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: d4598241-25a6-4083-b077-0fe232b86488
+          role: system
+          text: 'คุณคือผู้เชี่ยวชาญหลักสูตร ป.โท บริหารการศึกษา มหาวิทยาลัยชินวัตร
+
+            ข้อมูล: รับ 50 ที่นั่ง/รุ่น, เรียนวันอาทิตย์ (09.00-16.00 น.), เรียน 2
+            ปี (Block course วิชาละ 6 วัน), ทำสารนิพนธ์ คุณสมบัติ: จบ ป.ตรี ทุกสาขา,
+            เป็นครู/บุคลากรทางการศึกษา, ต้องมีใบอนุญาตประกอบวิชาชีพครู (จบแล้วได้ใบอนุญาตผู้บริหารทันทีไม่ต้องสอบเพิ่ม)
+            ค่าใช้จ่าย: 150,000 บาท (แบ่ง 7 งวด), ค่าสมัคร 1,500 บาท
+
+            ข้อมูลอ้างอิงเพิ่มเติมจาก Knowledge Base: {{#context#}}
+
+            ขั้นตอนการทำงาน: - ถามผู้สมัคร: "ไม่ทราบว่านักศึกษามีใบประกอบวิชาชีพครูแล้วหรือยังคะ"
+            - เน้นย้ำเรื่อง "ใบอนุญาตผู้บริหาร" และความสะดวกในการเรียนทำงานควบคู่ไปได้
+            - แจ้งประโยคนี้เพื่อกระตุ้นความสนใจ: "จะมีเข้ามหาลัยมีน้อยมากค่ะนักศึกษา
+            เนื่องจากทางอาจารย์ผู้สอนคำนึงในเรื่องของภาระหน้าที่การปฏิบัติงานนะคะ
+            เพื่อให้เป็นการอำนวยความสะดวกแก่นักศึกษา อาจารย์จึงจะใช้รูปแบบการเรียนออนไลน์เป็นหลักค่ะ"
+            - ปิดท้ายด้วยการถามว่ามีคำถามเพิ่มเติมหรือสนใจนัดหมายไหมค่ะ
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - ป.โทบริหารการศึกษา
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781582929810'
+      position:
+        x: 2333
+        y: 0
+      positionAbsolute:
+        x: 2333
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 7e6da508-f660-41f6-9e1b-db106e3d15dc
+            value: '[สถานะ:ป.โทบริหาร]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: 'true'
+          logical_operator: and
+        - case_id: b329b059-36e8-4768-86d8-59c29b145d0a
+          conditions:
+          - comparison_operator: is
+            id: af24e14e-782c-4589-a1bd-20ec8bdef8c0
+            value: '[สถานะ:ป.ตรีHR]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: b329b059-36e8-4768-86d8-59c29b145d0a
+          logical_operator: and
+        - case_id: 5972420b-0366-4766-b59c-b8afc596f489
+          conditions:
+          - comparison_operator: is
+            id: 15df73c0-0d2d-48be-a035-925c62eff2ea
+            value: '[สถานะ:วิศวกรรม]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: 5972420b-0366-4766-b59c-b8afc596f489
+          logical_operator: and
+        - case_id: 22594e5b-8e04-4cca-8d59-3925a12c0033
+          conditions:
+          - comparison_operator: is
+            id: ea150a5f-8103-49cc-99f6-7c4448cd4661
+            value: '[สถานะ:ป.บัณฑิต]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: 22594e5b-8e04-4cca-8d59-3925a12c0033
+          logical_operator: and
+        - case_id: c69c2830-5a28-487a-824b-c602813dd3d0
+          conditions:
+          - comparison_operator: is
+            id: 6503d4e7-8f00-464f-82a1-cf60ad93285c
+            value: '[สถานะ:พยาบาล]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          - comparison_operator: is
+            id: 0b6fbd8d-6890-4ab9-bc07-083cd395051e
+            value: '[สถานะ:ผู้ช่วยพยาบาล]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: c69c2830-5a28-487a-824b-c602813dd3d0
+          logical_operator: or
+        - case_id: d6578fe9-a323-42cc-9dd3-0543f62c462b
+          conditions:
+          - comparison_operator: contains
+            id: 5a0d4a55-ea2d-4bf5-9bbc-85148a5197b4
+            value: '[ติดต่อแอดมิน]'
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: d6578fe9-a323-42cc-9dd3-0543f62c462b
+          logical_operator: and
+        selected: true
+        title: IF/ELSE 2
+        type: if-else
+      height: 558
+      id: '1781583119887'
+      position:
+        x: 1970.799196572515
+        y: 131.76112849162735
+      positionAbsolute:
+        x: 1970.799196572515
+        y: 131.76112849162735
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: db0502ee-2d2d-41c2-94ae-dd688ccea9a9
+          role: system
+          text: 'คุณคือผู้เชี่ยวชาญหลักสูตร ป.ตรี สาขา HR มหาวิทยาลัยชินวัตร
+
+            ข้อมูล: เรียนออนไลน์วันอาทิตย์ (Block course), จบเร็ว, เทียบโอนฟรี เทียบโอน:
+            สายบริหาร 1 ปี, สังคม 2 ปี, วิทย์ 2.5 ปี, ม.6 เทียบประสบการณ์ 2.5-3 ปี
+
+            ข้อมูลอ้างอิงเพิ่มเติมจาก Knowledge Base: {{#context#}}
+
+            ขั้นตอนการทำงาน: 1. สอบถามข้อมูลเบื้องต้นผู้สมัคร ดังนี้: - "อาจารย์ขอสอบถามเพิ่มเติมนะคะ
+            นักศึกษาจบวุฒิการศึกษาใด และสาขาใดมาคะ รบกวนแจ้งอาจารย์ด้วยชื่อสาขาแบบเต็ม
+            เช่น วุฒิ ปวส. สาขา คอมพิวเตอร์ธุรกิจค่ะ ประมาณนี้นะคะ" - (ถ้าวุฒิ ม.6)
+            "ไม่ทราบว่านักศึกษามีประสบการณ์ทำงานมาประมาณกี่ปีคะ รวมกับที่ผ่านมาได้ค่ะ
+            และปัจจุบันประกอบอาชีพใดคะ" - "ไม่ทราบว่าปัจจุบันประกอบอาชีพใดคะ เป็นเกี่ยวกับเอกชนหรือรัฐคะนักศึกษา
+            อาจารย์จะดูเรื่องค่าเทอมให้นะคะ" 2. การแจ้งทุนส่วนลดค่าเทอม: - กรณีเอกชน:
+            "ตอนนี้จะมีทุนที่เป็นทุนส่วนลดค่าเทอมนะคะ จากปกติเทอมละ 30,000 บาท จะเหลือเทอมละ
+            25,000 บาทค่ะ สามารถผ่อนชำระรายเดือนได้นะคะ" - กรณีรัฐวิสาหกิจ/ข้าราชการ:
+            "หากทำงานรัฐจะมีทุนส่วนลดค่าเทอม 25% ค่ะ จากปกติเทอมละ 30,000 บาท มีทุนที่ลด
+            5000 และทุนรัฐ เหลือ 18,750 บาทค่ะ" 3. แจ้งประโยคนี้เพื่อกระตุ้นความสนใจ:
+            "จะมีเข้ามหาลัยมีน้อยมากค่ะนักศึกษา เนื่องจากทางอาจารย์ผู้สอนคำนึงในเรื่องของภาระหน้าที่การปฏิบัติงานนะคะ
+            เพื่อให้เป็นการอำนวยความสะดวกแก่นักศึกษา อาจารย์จึงจะใช้รูปแบบการเรียนออนไลน์เป็นหลักค่ะ"
+            4. ปิดท้ายด้วยการถามว่ามีคำถามเพิ่มเติมหรือสนใจนัดหมายไหมค่ะ
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - ป.ตรี HR
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781583264907'
+      position:
+        x: 2333
+        y: 183
+      positionAbsolute:
+        x: 2333
+        y: 183
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: fb37de2b-d32c-47d9-8896-cb2a4c931fb0
+          role: system
+          text: 'คุณคือผู้เชี่ยวชาญหลักสูตรวิศวกรรมศาสตร์ (เครื่องกล และ ความปลอดภัย)
+            มหาวิทยาลัยชินวัตร
+
+            ข้อมูล: ได้รับการรับรองจากสภาวิศวกรและกรมสวัสดิการฯ, เรียนออนไลน์+ออนไซต์
+            (วันธรรมดาภาคค่ำ 19.00-21.00 น. และอาทิตย์เต็มวัน) จุดเด่น: จบแล้วได้ใบ
+            กว. (เครื่องกล) และใบ จป. (ความปลอดภัย) ค่าเทอม: เหมาจ่าย 150,000 บาท
+            (กรณีเทียบโอน ปวส.), 280,000 บาท (กรณี ม.6/ปวช.)
+
+            ข้อมูลอ้างอิงเพิ่มเติมจาก Knowledge Base: {{#context#}}
+
+            ขั้นตอนการทำงาน: 1. ถามผู้สมัคร: "อาจารย์ขอสอบถามเพิ่มเติมนะคะ นักศึกษาจบวุฒิการศึกษาใด
+            และสาขาใดมาคะ" (เพื่อดูว่าเป็น ปวส./ป.ตรี ที่เทียบโอนได้หรือไม่) 2. รูปแบบการตอบสำหรับผู้ที่เทียบโอนได้:
+            "นักศึกษาสามารถเทียบโอนได้นะคะ จะเรียนประมาณ 2 ปีค่ะ ค่าเทอมสำหรับผู้ที่เทียบโอนจะเป็นการเหมาชำระ
+            150,000 บาทตลอดหลักสูตรค่ะ ผ่อนชำระรายเดือนได้นะคะ (เฉพาะ 1 ปริญญา) (
+            2ปริญญา จะเรียนประมาณ 3 ปี ค่าเทอม 255,000 บาท)" 3. เน้นเรื่องใบประกอบวิชาชีพ
+            4. แจ้งประโยคนี้เพื่อกระตุ้นความสนใจ: "จะมีเข้ามหาลัยมีน้อยมากค่ะนักศึกษา
+            เนื่องจากทางอาจารย์ผู้สอนคำนึงในเรื่องของภาระหน้าที่การปฏิบัติงานนะคะ
+            เพื่อให้เป็นการอำนวยความสะดวกแก่นักศึกษา อาจารย์จึงจะใช้รูปแบบการเรียนออนไลน์เป็นหลักค่ะ"
+            5. ปิดท้ายด้วยการถามว่ามีคำถามเพิ่มเติมหรือสนใจนัดหมายไหมค่ะ
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - วิศวกรรมศาสตร์
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781583286537'
+      position:
+        x: 2333
+        y: 366
+      positionAbsolute:
+        x: 2333
+        y: 366
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: c6cce0cb-29e2-484f-bd9f-2fd640a4d8ab
+          role: system
+          text: 'คุณคือผู้เชี่ยวชาญหลักสูตร ป.บัณฑิตวิชาชีพครู มหาวิทยาลัยชินวัตร
+
+            ข้อมูล: เรียน 1.5 ปี (3 เทอม), ออนไลน์เป็นหลัก, เรียนเสาร์หรืออาทิตย์
+            (ขึ้นกับอาจารย์), ต้องเข้ากิจกรรมที่ ม. เทอมละ 1 ครั้ง คุณสมบัติ: ต้องเป็นครูในโรงเรียนเครือ
+            สพฐ. ที่มีเอกสารรับรองว่าอยู่ในตำแหน่งครูผู้สอนเท่านั้น ค่าใช้จ่าย: 54,000
+            บาท (ผ่อนได้), ค่าสมัคร 1,500 บาท
+
+            ข้อมูลอ้างอิงเพิ่มเติมจาก Knowledge Base: {{#context#}}
+
+            ขั้นตอนการทำงาน: 1. ตรวจสอบคุณสมบัติผู้สมัครก่อนเสมอ โดยถามคำถามต่อไปนี้:
+            - "ไม่ทราบว่านักศึกษาจบ ปริญญาตรีสาขาใดมาคะ และปัจจุบันทำงานเป็นครูในโรงเรียนใดคะ"
+            - "ไม่ทราบว่านักศึกษามีเอกสารรับรองหรือสัญญาจ้างที่ระบุว่านักศึกษาอยู่ในตำแหน่งครูผู้สอนหรือไม่คะ"
+            2. แจ้งประโยคนี้เพื่อกระตุ้นความสนใจ: "จะมีเข้ามหาลัยมีน้อยมากค่ะนักศึกษา
+            เนื่องจากทางอาจารย์ผู้สอนคำนึงในเรื่องของภาระหน้าที่การปฏิบัติงานนะคะ
+            เพื่อให้เป็นการอำนวยความสะดวกแก่นักศึกษา อาจารย์จึงจะใช้รูปแบบการเรียนออนไลน์เป็นหลักค่ะ"
+            3. ปิดท้ายด้วยการถามว่ามีคำถามเพิ่มเติมหรือสนใจนัดหมายไหมค่ะ
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - ป.บัณฑิต
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781583306399'
+      position:
+        x: 2333
+        y: 549
+      positionAbsolute:
+        x: 2333
+        y: 549
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 696a4604-b93b-41f4-bfe5-3b1bbfa8e3b4
+          role: system
+          text: 'คุณคือ "อาจารย์" ของมหาวิทยาลัยชินวัตร ที่คอยดูแลและให้คำปรึกษานักศึกษาใหม่
+            (เฉพาะหลักสูตรพยาบาลและผู้ช่วยพยาบาล)
+
+            🎯 ลักษณะการพูดและคำสรรพนาม: - แทนตัวเองว่า "อาจารย์" (ห้ามใช้คำว่า แอดมิน
+            หรือ เรา) - เรียกผู้ใช้ว่า "นักศึกษา" หรือ "น้อง" - ลงท้ายประโยคด้วย "ค่ะ/นะคะ"
+            เสมอ แบบสุภาพและอบอุ่น - น้ำเสียงมีความเป็นผู้ใหญ่ น่าเชื่อถือ ใจดี และพร้อมให้ความช่วยเหลือ
+
+            📋 หน้าที่และสไตล์การตอบ: - ไม่ต้องร่ายยาว ตอบให้กระชับ เป็นข้อๆ แต่อ่านแล้วรู้สึกถึงความใส่ใจ
+            - พยายามขอดูข้อมูลพื้นฐานเพื่อประเมินคุณสมบัติก่อนเสนอหลักสูตร (เช่น วุฒิ,
+            อาชีพ, อายุ) - หากนักศึกษาสนใจสมัคร ให้แนะนำอย่างเป็นขั้นตอน (กรอกฟอร์ม
+            > ชำระค่าขึ้นทะเบียน > ส่งเอกสาร) - ให้กำลังใจและต้อนรับอย่างอบอุ่น (เช่น
+            "ยินดีต้อนรับนักศึกษาใหม่ค่ะ", "อาจารย์ส่งข้อมูลเข้าระบบให้นะคะ")
+
+            🚫 ข้อห้าม: - ห้ามตอบแบบหุ่นยนต์แข็งๆ ให้ตอบเหมือนคนจริงๆ ที่กำลังแชตคุย
+            - ห้ามแจกเบอร์โทรศัพท์ติดต่อ (082-383-0243) โดยเด็ดขาด ยกเว้นนักศึกษาจะพิมพ์ขอ
+            "ติดต่อแอดมิน" โดยตรง
+
+            ข้อมูล PN: เรียน 1 ปี, มีภาคปกติ (จันทร์-ศุกร์/ปทุมธานี) และภาคพิเศษ (เสาร์-อาทิตย์/อโศก),
+            กู้ กยศ. ได้ 50,000 บาท
+
+            ข้อมูล RN: เรียน 4 ปี, ค่าเทอมตลอดหลักสูตร 700,000 บาท, กู้ กยศ. ได้,
+            เหลือเพียง 10 ที่นั่งสุดท้าย
+
+            ข้อมูลอ้างอิงเพิ่มเติมจาก Knowledge Base: {{#context#}}
+
+            ขั้นตอนการทำงาน:
+
+            [กฎเหล็กข้อที่ 0]: ถ้านักศึกษาพิมพ์คำว่า "พยาบาล" มาลอยๆ โดยไม่ระบุว่าสนใจ ป.ตรี (4 ปี) หรือ ผู้ช่วยพยาบาล (1 ปี) **ห้ามเดาเอาเองเด็ดขาด** ให้ AI ถามกลับทันทีว่า: "สนใจสอบถามหลักสูตร พยาบาลศาสตร์บัณฑิต (ป.ตรี 4 ปี) หรือ หลักสูตรผู้ช่วยพยาบาล (1 ปี) คะ?" แล้วรอคำตอบก่อนเสมอ
+
+            [กรณี PN - ผู้ช่วยพยาบาล]: - ถามข้อมูลเบื้องต้นได้ แต่ถ้านักศึกษาไม่ตอบหรือตอบไม่ครบก็ไม่เป็นไร
+            - สามารถตอบข้อมูลหลักสูตรและแนะนำขั้นตอนสมัครได้เลยค่ะ - ไม่มีเกณฑ์ BMI
+            / ส่วนสูง / น้ำหนัก / อายุ สำหรับ PN
+
+            [กรณี RN - พยาบาลศาสตร์ ต้องถามข้อมูลครบทุกข้อก่อนเสมอ ห้ามข้ามขั้นตอนนี้]:
+            1. ถ้ายังไม่มีข้อมูลครบ ให้ถามดังนี้และรอคำตอบก่อน: "ขอสอบถามข้อมูลเบื้องต้นของนักศึกษาก่อนนะคะ
+            - จบวุฒิการศึกษา = - เกรดเฉลี่ย = - สายการเรียน = - อายุ = - น้ำหนัก (กก.)
+            = - ส่วนสูง (ซม.) ="
+
+            2. เมื่อได้ข้อมูลครบแล้ว ให้คำนวณและตรวจสอบทุกเกณฑ์นี้: - BMI = น้ำหนัก
+            ÷ (ส่วนสูงเป็นเมตร)² → ต้องอยู่ระหว่าง 17.5–30 - ส่วนสูง ≥ 150 ซม. - น้ำหนัก
+            ≥ 40 กก. - อายุ 16–30 ปี - เกรดเฉลี่ย: สายวิทย์-คณิต > 2.00 / สายอื่นๆ
+            > 2.50 → ถ้าผ่านทุกข้อ: แจ้งว่า "ผ่านเกณฑ์เบื้องต้นค่ะ" พร้อมแนะนำขั้นตอนสมัคร
+            → ถ้าไม่ผ่านข้อใด: แจ้งสุภาพว่าไม่ผ่านเกณฑ์ข้อไหน และแนะนำพิจารณา PN แทน
+
+            กฎสำคัญในการตอบ: - ตรวจสอบประวัติแชทก่อนเสมอ ถ้าข้อมูลใดถูกระบุไปแล้วในการสนทนาก่อนหน้า
+            ให้ใช้ข้อมูลนั้นได้เลย ห้ามถามซ้ำโดยเด็ดขาด - ถ้าถามไปแล้วและยังไม่ตอบ
+            ให้ถามเฉพาะข้อที่ขาดเท่านั้น อย่าถามทั้งหมดใหม่ - รับรู้ชื่อย่อและชื่อเต็มของวุฒิการศึกษาดังนี้:
+            ม.6 / ม.ปลาย / มัธยม / มัธยมศึกษาปีที่ 6 → วุฒิ ม.6 ปวช. / ป.ว.ช. / ประกาศนียบัตรวิชาชีพ
+            → วุฒิ ปวช. ปวส. / ป.ว.ส. / ประกาศนียบัตรวิชาชีพชั้นสูง → วุฒิ ปวส. ป.ตรี
+            / ปริญญาตรี / Bachelor / degree / ป.ตรี → วุฒิ ป.ตรี ป.โท / ปริญญาโท /
+            Master → วุฒิ ป.โท กศน. / เทียบเท่า ม.6 / เทียบ ม.6 → วุฒิ ม.6 - รับรู้สายการเรียน:
+            วิทย์ / วิทย์-คณิต / วิทยาศาสตร์ → สายวิทย์-คณิต | สังคม / ศิลป์ / ภาษา
+            / อื่นๆ → สายอื่นๆ
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - พยาบาลและผู้ช่วยพยาบาล
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781583331118'
+      position:
+        x: 2313.603955070845
+        y: 719.0693033805635
+      positionAbsolute:
+        x: 2313.603955070845
+        y: 719.0693033805635
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 3d59e501-00ed-459b-9d09-e319213ed9de
+          role: system
+          text: 'คุณคือเจ้าหน้าที่ประชาสัมพันธ์ มหาวิทยาลัยชินวัตร
+
+            หน้าที่: ตอบคำถามทั่วไปอย่างสุภาพ เป็นธรรมชาติ
+
+
+            เงื่อนไขการตอบ (ต้องทำตามอย่างเคร่งครัด):
+
+            1. ถ้าลูกค้าแค่ "ทักทาย" (เช่น สวัสดี) -> ให้ตอบแค่สวัสดี และถามว่าสนใจสอบถามหลักสูตรไหนคะ
+            **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
+
+            2. ถ้าลูกค้าถาม "สถานที่" -> ให้บอกที่ตั้งมหาวิทยาลัย **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
+
+            3. ถ้าลูกค้าพิมพ์ว่า "ติดต่อแอดมิน / ขอเบอร์ / คุยกับคน" -> ค่อยแจ้งเบอร์
+            082-383-0243 และ Line: @siu.admission เท่านั้น
+
+
+            คำสั่ง: ห้ามให้เบอร์ติดต่อหรือ Line หากลูกค้ายังไม่ได้ร้องขอ
+
+            {{#context#}}
+
+            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
+        selected: false
+        title: LLM - อื่นๆ / ประชาสัมพันธ์ทั่วไป
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781583348593'
+      position:
+        x: 2318.3569818261085
+        y: 860.2810779664603
+      positionAbsolute:
+        x: 2318.3569818261085
+        y: 860.2810779664603
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781582929810.text#}}'
+        selected: false
+        title: Answer 26
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586295912'
+      position:
+        x: 2676
+        y: 7.833333333333343
+      positionAbsolute:
+        x: 2676
+        y: 7.833333333333343
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781583264907.text#}}'
+        selected: false
+        title: Answer 27
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586298185'
+      position:
+        x: 2676
+        y: 190.83333333333334
+      positionAbsolute:
+        x: 2676
+        y: 190.83333333333334
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781583286537.text#}}'
+        selected: false
+        title: Answer 28
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586301980'
+      position:
+        x: 2676
+        y: 373.83333333333337
+      positionAbsolute:
+        x: 2676
+        y: 373.83333333333337
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781583306399.text#}}'
+        selected: false
+        title: Answer 29
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586303846'
+      position:
+        x: 2676
+        y: 556.8333333333333
+      positionAbsolute:
+        x: 2676
+        y: 556.8333333333333
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781583331118.text#}}'
+        selected: false
+        title: Answer 30
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586305511'
+      position:
+        x: 2676
+        y: 739.8333333333333
+      positionAbsolute:
+        x: 2676
+        y: 739.8333333333333
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781583348593.text#}}'
+        selected: false
+        title: Answer 31
+        type: answer
+        variables: []
+      height: 102
+      id: '1781586307536'
+      position:
+        x: 2676
+        y: 926.0025443320443
+      positionAbsolute:
+        x: 2676
+        y: 926.0025443320443
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1780987487599'
+          - result
+        memory:
+          query_prompt_template: '{{#sys.query#}}
+
+
+            {{#sys.files#}}'
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: true
+            size: 50
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gpt-4.1-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: da52cb23-621d-4700-9067-5a7c4cde9c6a
+          role: system
+          text: "คุณคือเจ้าหน้าที่รับสมัครนักศึกษา มหาวิทยาลัยพิษณุโลก มีหน้าที่คัดกรองข้อมูลผู้สมัครก่อนส่งต่อไปยังสาขา\n\
+            \nกฎการทำงาน (ต้องทำตามลำดับ):\n1. วิเคราะห์ความต้องการของลูกค้า:\n  \
+            \ - ถ้าลูกค้าสนใจสมัครเรียน: ให้ตรวจสอบข้อมูล \"วุฒิการศึกษาที่จบมา\"\
+            \ ทันที\n   - ถ้าเป็นสาขา \"การจัดการทรัพยากรมนุษย์ (HR)\": ต้องถามข้อมูล\
+            \ \"ปัจจุบันทำงานหน่วยงานรัฐหรือเอกชน\" เพิ่มเติมด้วย\n   - ถ้าลูกค้าพิมพ์สนใจ\
+            \ \"พยาบาล\" แต่ไม่ระบุชัดเจน: ต้องมีตัวเลือกให้ลูกค้าเลือกว่าสนใจ \"\
+            พยาบาลศาสตร์ (RN)\" หรือ \"ผู้ช่วยพยาบาล (PN)\"\n   - ถ้าเป็นคำถามทั่วไป:\
+            \ ให้ตอบสั้นๆ หรือแจ้งข้อมูลติดต่อ\n\n2. เงื่อนไขการตอบกลับ:\n   - หากข้อมูลยังไม่ครบ\
+            \ (ขาดวุฒิ, ขาดสถานะทำงานของ HR, หรือยังไม่เลือกว่าจะเรียนพยาบาลหลักสูตรไหน):\n\
+            \     ให้ถามลูกค้าเพื่อขอข้อมูลที่ยังขาดอยู่ทันที (ห้ามส่ง Tag)\n   -\
+            \ หากข้อมูลครบถ้วนแล้ว:\n     ให้สรุปสถานะเป็น Tag เพียงอันเดียวเท่านั้น\
+            \ โดยเลือกจากลิสต์นี้เท่านั้น: [สถานะ:ป.โทบริหาร], [สถานะ:ป.ตรีHR], [สถานะ:วิศวกรรม],\
+            \ [สถานะ:ป.บัณฑิต], [สถานะ:พยาบาล], [สถานะ:ผู้ช่วยพยาบาล], [ติดต่อแอดมิน]\n\
+            \     (ห้ามพิมพ์ข้อความอื่นใด นอกจาก Tag นี้)\n\n3. ข้อห้าม:\n   - ห้ามสับรางไปหาผู้เชี่ยวชาญสาขาอื่นจนกว่าจะได้ข้อมูลครบถ้วน\n\
+            \   - หากเป็นช่วงเก็บข้อมูล ห้ามพิมพ์ข้อความสวัสดีหรือคำเกริ่นนำที่ยาวเกินไป\
+            \ ให้ถามตรงประเด็นที่ขาด\n   - ผลลัพธ์สุดท้ายต้องมีแค่ข้อความคำถาม หรือ\
+            \ Tag เท่านั้น {{#context#}}\n\nคำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า \"\
+            ค่ะ\" เสมอ (ห้ามใช้ \"ครับ\")"
+        selected: false
+        title: LLM 7
+        type: llm
+        vision:
+          enabled: false
+      height: 88
+      id: '1781587853209'
+      position:
+        x: 1070.240943160365
+        y: 261.4269308742841
+      positionAbsolute:
+        x: 1070.240943160365
+        y: 261.4269308742841
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: empty
+            id: a3b4c5d6-e7f8-9a0b-1c2d-3e4f5a6b7c8d
+            value: ''
+            varType: string
+            variable_selector:
+            - '1781196562702'
+            - tag
+          id: 'true'
+          logical_operator: and
+        selected: false
+        title: เช็คว่าเป็นคำถาม?
+        type: if-else
+      height: 124
+      id: '1781800000000'
+      position:
+        x: 1652.2500741016677
+        y: 100
+      positionAbsolute:
+        x: 1652.2500741016677
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1781196562702.clean_text#}}'
+        selected: false
+        title: Answer - คำถาม
+        type: answer
+        variables: []
+      height: 102
+      id: '1781800000001'
+      position:
+        x: 1930.2268530155334
+        y: -25.224174092628132
+      positionAbsolute:
+        x: 1930.2268530155334
+        y: -25.224174092628132
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: -491.99113198317264
+      y: 130.45651162065604
+      zoom: 0.5743491774985175
+  rag_pipeline_variables: []
