@@ -7,58 +7,33 @@ import StatisticsCard from '@views/apps/ecommerce/dashboard/StatisticsCard'
 import LineChartProfit from '@views/apps/ecommerce/dashboard/LineChartProfit'
 import RadialBarChart from '@views/apps/ecommerce/dashboard/RadialBarChart'
 import DonutChartGeneratedLeads from '@views/apps/ecommerce/dashboard/DonutChartGeneratedLeads'
-import RevenueReport from '@views/apps/ecommerce/dashboard/RevenueReport'
-import EarningReports from '@views/apps/ecommerce/dashboard/EarningReports'
-import PopularProducts from '@views/apps/ecommerce/dashboard/PopularProducts'
-import Orders from '@views/apps/ecommerce/dashboard/Orders'
-import Transactions from '@views/apps/ecommerce/dashboard/Transactions'
-import InvoiceListTable from '@views/apps/ecommerce/dashboard/InvoiceListTable'
-
-// Data Imports
-import { getInvoiceData } from '@/app/server/actions'
+import RecentChatsTable from '@views/apps/ecommerce/dashboard/RecentChatsTable'
 
 const ChatbotDashboard = async () => {
-  // Vars
-  const invoiceData = await getInvoiceData()
-
   return (
     <Grid container spacing={6}>
+      {/* แถวที่ 1 */}
       <Grid size={{ xs: 12, md: 4 }}>
         <CongratulationsJohn />
       </Grid>
       <Grid size={{ xs: 12, md: 8 }}>
         <StatisticsCard />
       </Grid>
-      <Grid size={{ xs: 12, xl: 4 }}>
-        <Grid container spacing={6}>
-          <Grid size={{ xs: 12, sm: 6, md: 3, xl: 6 }}>
-            <LineChartProfit />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 3, xl: 6 }}>
-            <RadialBarChart />
-          </Grid>
-          <Grid size={{ xs: 12, md: 6, xl: 12 }}>
-            <DonutChartGeneratedLeads />
-          </Grid>
-        </Grid>
+
+      {/* แถวที่ 2: กราฟเรียงซ้าย กลาง ขวา เมื่อเป็นจอใหญ่ */}
+      <Grid size={{ xs: 12, md: 4 }}>
+        <RadialBarChart />
       </Grid>
-      <Grid size={{ xs: 12, xl: 8 }}>
-        <RevenueReport />
+      <Grid size={{ xs: 12, md: 4 }}>
+        <DonutChartGeneratedLeads />
       </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <EarningReports />
+      <Grid size={{ xs: 12, md: 4 }}>
+        <LineChartProfit />
       </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <PopularProducts />
-      </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <Orders />
-      </Grid>
-      <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
-        <Transactions />
-      </Grid>
-      <Grid size={{ xs: 12, lg: 8 }}>
-        <InvoiceListTable invoiceData={invoiceData} />
+
+      {/* แถวที่ 3: ตารางเต็มความกว้าง */}
+      <Grid size={{ xs: 12 }}>
+        <RecentChatsTable />
       </Grid>
     </Grid>
   )

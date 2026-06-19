@@ -113,7 +113,7 @@ const UserProfileLeft = (props: Props) => {
                 Status
               </FormLabel>
               <RadioGroup
-                value={profileUserData.status}
+                value={profileUserData.status || 'offline'}
                 name='radio-buttons-group'
                 onChange={handleUserStatus}
                 aria-labelledby='status-radio-buttons-group-label'

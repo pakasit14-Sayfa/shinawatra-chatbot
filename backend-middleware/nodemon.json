@@ -1,0 +1,11 @@
+{
+  "ignore": [
+    "active-users.json",
+    "*.log",
+    ".system_generated/*",
+    "check-*.js",
+    "crash-*.log",
+    "server-test.log",
+    "test-webhook.js"
+  ]
+}

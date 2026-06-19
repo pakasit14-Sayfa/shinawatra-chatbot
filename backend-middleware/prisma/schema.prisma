@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 // ==========================================
@@ -16,6 +17,7 @@ model User {
   platform_user_id String        @unique @db.VarChar(255)
   tenant_id        String?       @db.VarChar(255) // Added for Multi-Tenancy (FB Page ID / LINE Campus)
   display_name     String?       @db.VarChar(255)
+  profile_pic_url  String?       @db.Text
   created_at       DateTime      @default(now())
 
   // Relations

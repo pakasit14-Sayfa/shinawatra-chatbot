@@ -1,5 +1,8 @@
+'use client'
+
 // Next Imports
 import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -14,6 +17,25 @@ import type { ApexOptions } from 'apexcharts'
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
 const RadialBarChart = () => {
+  const [resolutionRate, setResolutionRate] = useState(0)
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const response = await fetch('/api/dashboard/charts')
+        if (response.ok) {
+          const data = await response.json()
+          setResolutionRate(data.aiResolutionRate)
+        }
+      } catch (error) {
+        console.error('Failed to fetch chart data', error)
+      }
+    }
+    fetchChartData()
+    const interval = setInterval(fetchChartData, 30000)
+    return () => clearInterval(interval)
+  }, [])
+
   // Vars
   const options: ApexOptions = {
     chart: {
@@ -29,7 +51,7 @@ const RadialBarChart = () => {
       lineCap: 'round',
       curve: 'smooth'
     },
-    colors: ['var(--mui-palette-warning-main)'],
+    colors: ['var(--mui-palette-success-main)'],
     plotOptions: {
       radialBar: {
         endAngle: 90,
@@ -88,12 +110,12 @@ const RadialBarChart = () => {
   }
 
   return (
-    <Card>
-      <CardHeader title='82.5k' subheader='Expenses' className='pbe-0' />
+    <Card className='h-full'>
+      <CardHeader title='AI Resolution' subheader='Success Rate' className='pbe-0' />
       <CardContent className='flex flex-col gap-3 items-center'>
-        <AppReactApexCharts type='radialBar' height={148} width='100%' options={options} series={[78]} />
-        <Typography variant='body2' color='text.disabled' className='sm:mbs-2 lg:mbs-0'>
-          $21k Expenses more than last month
+        <AppReactApexCharts type='radialBar' height={148} width='100%' options={options} series={[resolutionRate]} />
+        <Typography variant='body2' color='text.disabled' className='sm:mbs-2 lg:mbs-0 text-center'>
+          Chats handled by AI without Admin intervention
         </Typography>
       </CardContent>
     </Card>

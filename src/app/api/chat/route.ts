@@ -43,7 +43,7 @@ export async function GET() {
         fullName: user.display_name || user.platform_user_id,
         role: user.platform.toUpperCase(),
         about: `ช่องทาง: ${user.platform}`,
-        avatar: '', // ไม่มีภาพจาก LINE/FB ให้ใส่ว่างไว้ก่อน
+        avatar: user.profile_pic_url || '', 
         status: 'offline' // สถานะคนเล่น (จำลองไว้ก่อน)
       })
 

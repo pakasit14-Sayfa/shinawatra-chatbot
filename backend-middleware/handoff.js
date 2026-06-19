@@ -21,8 +21,12 @@ const redisClient = createClient({
     password: process.env.REDIS_PASSWORD || undefined
 });
 
-redisClient.on('error', (err) => console.error('[Redis Client Error]', err));
-
+redisClient.on('error', (err) => {
+    // ซ่อน Error 'HELLO' ที่เกิดจาก Redis เวอร์ชั่นเก่า เพื่อไม่ให้รก Terminal
+    if (!err.message || !err.message.includes('HELLO')) {
+        console.error('[Redis Client Error]', err);
+    }
+});
 // เชื่อมต่อทันทีที่โหลดไฟล์
 (async () => {
     try {

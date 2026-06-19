@@ -2,6 +2,7 @@
 
 // Next Imports
 import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 
 // MUI Imports
 import Card from '@mui/material/Card'
@@ -15,11 +16,33 @@ import type { ApexOptions } from 'apexcharts'
 // Styled Component Imports
 const AppReactApexCharts = dynamic(() => import('@/libs/styles/AppReactApexCharts'))
 
-const series = [32, 41, 41, 70]
-
 const BarChartRevenueGrowth = () => {
   // Hook
   const theme = useTheme()
+  
+  // State
+  const [chartData, setChartData] = useState({
+    labels: ['LINE', 'FACEBOOK'],
+    series: [0, 0],
+    total: 0
+  })
+
+  useEffect(() => {
+    const fetchChartData = async () => {
+      try {
+        const response = await fetch('/api/dashboard/charts')
+        if (response.ok) {
+          const data = await response.json()
+          setChartData(data.platformTraffic)
+        }
+      } catch (error) {
+        console.error('Failed to fetch chart data', error)
+      }
+    }
+    fetchChartData()
+    const interval = setInterval(fetchChartData, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Vars
   const textSecondary = 'var(--mui-palette-text-secondary)'
@@ -36,7 +59,7 @@ const BarChartRevenueGrowth = () => {
     legend: { show: false },
     tooltip: { enabled: true, theme: 'false' },
     dataLabels: { enabled: false },
-    labels: ['Electronic', 'Sports', 'Decor', 'Fashion'],
+    labels: chartData.labels,
     states: {
       hover: {
         filter: { type: 'none' }
@@ -101,24 +124,24 @@ const BarChartRevenueGrowth = () => {
   }
 
   return (
-    <Card className='overflow-visible'>
+    <Card className='overflow-visible h-full'>
       <CardContent className='flex justify-between gap-4'>
         <div className='flex flex-col justify-between'>
           <div className='flex flex-col'>
-            <Typography variant='h5'>Generated Leads</Typography>
-            <Typography>Monthly Report</Typography>
+            <Typography variant='h5'>Platform Traffic</Typography>
+            <Typography>Users by Platform</Typography>
           </div>
           <div className='flex flex-col items-start'>
-            <Typography variant='h3'>4,350</Typography>
+            <Typography variant='h3'>{chartData.total}</Typography>
             <div className='flex items-center gap-1'>
               <i className='tabler-chevron-up text-success text-xl'></i>
               <Typography color='success.main' component='span'>
-                +15.8%
+                Active
               </Typography>
             </div>
           </div>
         </div>
-        <AppReactApexCharts type='donut' width={150} height={177} series={series} options={options} />
+        <AppReactApexCharts type='donut' width={150} height={177} series={chartData.series} options={options} />
       </CardContent>
     </Card>
   )

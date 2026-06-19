@@ -250,10 +250,21 @@ app.post('/webhook/line/:campus', async (req, res) => {
                 text: text,
                 meta: { replyToken: event.replyToken }, // เก็บ token ล่าสุดไว้ตอบ
                 processFn: async (userId, combinedText, meta) => {
-                    console.log(`\n[LINE] 📩 "${combinedText.replace(/\n/g, ' | ')}"`);
-
                     try {
-                        const user = await db.getOrCreateUser('line', userId, null, campusPath);
+                        // 1. Fetch LINE Profile
+                        let displayName = null;
+                        let profilePicUrl = null;
+                        try {
+                            const profileRes = await axios.get(`https://api.line.me/v2/bot/profile/${userId}`, {
+                                headers: { 'Authorization': `Bearer ${tenantConfig.lineAccessToken}` }
+                            });
+                            displayName = profileRes.data.displayName;
+                            profilePicUrl = profileRes.data.pictureUrl;
+                        } catch (err) {
+                            console.error('[LINE Profile Fetch Error]', err.message);
+                        }
+
+                        const user = await db.getOrCreateUser('line', userId, displayName, campusPath, profilePicUrl);
                         const session = await db.getOrCreateSession(user.id);
                         const chatLog = await db.logChatMessage(session.id, 'user', combinedText);
 
@@ -272,7 +283,16 @@ app.post('/webhook/line/:campus', async (req, res) => {
                         const difyAnswer = validation.safeMessage;
                         await db.logChatMessage(session.id, 'bot', difyAnswer);
 
-                        console.log(`[Dify] ✅ ตอบ: "${difyAnswer.slice(0, 80)}..."`);
+                        let botName = 'LINE';
+                        if (campusPath === 'line_1') botName = 'LINE พิษณุโลก';
+                        else if (campusPath === 'line_2') botName = 'LINE ชินวัตร';
+                        else if (campusPath === 'line_3') botName = 'LINE จีน';
+
+                        console.log('\n=============================================');
+                        console.log(`📱 แหล่งที่มา: ${botName}`);
+                        console.log(`👤 ลูกค้า (${displayName || userId}): "${combinedText.replace(/\n/g, ' ')}"`);
+                        console.log(`🤖 AI ตอบ: "${difyAnswer}"`);
+                        console.log('=============================================\n');
 
                         // แปลงเป็น LINE messages: แยกตาม === + รูปเป็น bubble แยก ลำดับคงเดิม
                         const messages = buildLineMessages(difyAnswer);
@@ -357,7 +377,18 @@ app.post('/webhook/meta', async (req, res) => {
                     processFn: async (userId, combinedText) => {
                         console.log(`[META] 📩 (จากโฆษณา) เริ่มต้อนรับลูกค้าเข้าหลักสูตร`);
                         try {
-                            const user = await db.getOrCreateUser('facebook', userId, null, pageId);
+                            // Fetch FB Profile
+                            let displayName = null;
+                            let profilePicUrl = null;
+                            try {
+                                const profileRes = await axios.get(`https://graph.facebook.com/v19.0/${userId}?fields=first_name,last_name,profile_pic&access_token=${tenantConfig.fbAccessToken}`);
+                                displayName = profileRes.data.first_name ? `${profileRes.data.first_name} ${profileRes.data.last_name || ''}`.trim() : null;
+                                profilePicUrl = profileRes.data.profile_pic;
+                            } catch (err) {
+                                console.error('[META Profile Fetch Error]', err.message);
+                            }
+
+                            const user = await db.getOrCreateUser('facebook', userId, displayName, pageId, profilePicUrl);
                             const session = await db.getOrCreateSession(user.id);
                             await db.logChatMessage(session.id, 'user', combinedText);
 
@@ -443,10 +474,19 @@ app.post('/webhook/meta', async (req, res) => {
                     text: webhookEvent.message.text,
                     meta: {},
                     processFn: async (userId, combinedText) => {
-                        console.log(`\n[META] 📩 "${combinedText.replace(/\n/g, ' | ')}"`);
-
                         try {
-                            const user = await db.getOrCreateUser('facebook', userId, null, pageId);
+                            // Fetch FB Profile
+                            let displayName = null;
+                            let profilePicUrl = null;
+                            try {
+                                const profileRes = await axios.get(`https://graph.facebook.com/v19.0/${userId}?fields=first_name,last_name,profile_pic&access_token=${tenantConfig.fbAccessToken}`);
+                                displayName = profileRes.data.first_name ? `${profileRes.data.first_name} ${profileRes.data.last_name || ''}`.trim() : null;
+                                profilePicUrl = profileRes.data.profile_pic;
+                            } catch (err) {
+                                console.error('[META Profile Fetch Error]', err.message);
+                            }
+
+                            const user = await db.getOrCreateUser('facebook', userId, displayName, pageId, profilePicUrl);
                             const session = await db.getOrCreateSession(user.id);
                             const chatLog = await db.logChatMessage(session.id, 'user', combinedText);
 
@@ -468,7 +508,20 @@ app.post('/webhook/meta', async (req, res) => {
                             const difyAnswer = validation.safeMessage;
                             await db.logChatMessage(session.id, 'bot', difyAnswer);
 
-                            console.log(`[Dify] ✅ ตอบ: "${difyAnswer.slice(0, 80)}..."`);
+                            let botName = 'Facebook';
+                            if (pagePath === 'fb_1') botName = 'FB เพจที่ 1';
+                            else if (pagePath === 'fb_2') botName = 'FB เพจที่ 2';
+                            else if (pagePath === 'fb_3') botName = 'FB เพจที่ 3';
+                            else if (pagePath === 'fb_4') botName = 'FB เพจที่ 4';
+                            else if (pagePath === 'fb_5') botName = 'FB เพจที่ 5';
+                            else if (pagePath === 'fb_6') botName = 'FB เพจที่ 6';
+                            else if (pagePath === 'fb_7') botName = 'FB เพจที่ 7';
+
+                            console.log('\n=============================================');
+                            console.log(`📘 แหล่งที่มา: ${botName}`);
+                            console.log(`👤 ลูกค้า (${displayName || userId}): "${combinedText.replace(/\n/g, ' ')}"`);
+                            console.log(`🤖 AI ตอบ: "${difyAnswer}"`);
+                            console.log('=============================================\n');
 
                             await deliverMessage('facebook', userId, difyAnswer, (reason) => {
                                 alertAdmin(`🔴 ส่งข้อความเข้า Facebook ไม่ได้ (อาจ token หมดอายุ)\nสาเหตุ: ${reason}`, 'fb-send-error');

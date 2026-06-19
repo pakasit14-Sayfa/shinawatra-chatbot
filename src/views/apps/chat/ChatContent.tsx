@@ -101,6 +101,22 @@ const ChatContent = (props: Props) => {
     }
   }
 
+  // Close Deal Function
+  const closeDeal = async () => {
+    if (confirm('คุณแน่ใจหรือไม่ที่จะปิดการขายลูกค้ารายนี้?')) {
+      try {
+        await fetch('/api/chat/close-deal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: activeUser?.id })
+        })
+        alert('ปิดการขายสำเร็จ! สถิติใน Dashboard ได้รับการอัปเดตแล้ว')
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
+
   useEffect(() => {
     if (!backdropOpen && userProfileRightOpen) {
       setUserProfileRightOpen(false)
@@ -201,6 +217,15 @@ const ChatContent = (props: Props) => {
                     startIcon={<i className='tabler-robot' />}
                   >
                     เปิดบอท
+                  </Button>
+                  <Button
+                    variant='contained'
+                    color='warning'
+                    size='small'
+                    onClick={closeDeal}
+                    startIcon={<i className='tabler-check' />}
+                  >
+                    ปิดการขาย
                   </Button>
                 <OptionMenu
                   iconButtonProps={{ size: 'medium' }}

@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 /**
  * ดึงหรือสร้างข้อมูลผู้ใช้ (User)
  */
-async function getOrCreateUser(platform, platformUserId, displayName = null, tenantId = null) {
+async function getOrCreateUser(platform, platformUserId, displayName = null, tenantId = null, profilePicUrl = null) {
     let user = await prisma.user.findUnique({
         where: { platform_user_id: platformUserId }
     });
@@ -15,13 +15,15 @@ async function getOrCreateUser(platform, platformUserId, displayName = null, ten
                 platform: platform,
                 platform_user_id: platformUserId,
                 display_name: displayName,
-                tenant_id: tenantId
+                tenant_id: tenantId,
+                profile_pic_url: profilePicUrl
             }
         });
     } else {
         const updateData = {};
         if (displayName && user.display_name !== displayName) updateData.display_name = displayName;
         if (tenantId && user.tenant_id !== tenantId) updateData.tenant_id = tenantId;
+        if (profilePicUrl && user.profile_pic_url !== profilePicUrl) updateData.profile_pic_url = profilePicUrl;
         
         if (Object.keys(updateData).length > 0) {
             user = await prisma.user.update({
