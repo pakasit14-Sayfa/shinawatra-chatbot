@@ -9,6 +9,8 @@ import Typography from '@mui/material/Typography'
 import Autocomplete from '@mui/material/Autocomplete'
 import InputAdornment from '@mui/material/InputAdornment'
 import IconButton from '@mui/material/IconButton'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -61,14 +63,21 @@ type RenderChatType = {
   backdropOpen: boolean
   setBackdropOpen: (value: boolean) => void
   isBelowMdScreen: boolean
+  activeTab: 'ALL' | 'LINE' | 'FACEBOOK'
 }
 
 // Render chat list
 const renderChat = (props: RenderChatType) => {
   // Props
-  const { chatStore, getActiveUserData, setSidebarOpen, backdropOpen, setBackdropOpen, isBelowMdScreen } = props
+  const { chatStore, getActiveUserData, setSidebarOpen, backdropOpen, setBackdropOpen, isBelowMdScreen, activeTab } = props
 
-  return chatStore.chats.map(chat => {
+  const filteredChats = chatStore.chats.filter(chat => {
+    if (activeTab === 'ALL') return true
+    const contact = chatStore.contacts.find(contact => contact.id === chat.userId)
+    return contact?.role === activeTab
+  })
+
+  return filteredChats.map(chat => {
     const contact = chatStore.contacts.find(contact => contact.id === chat.userId) || chatStore.contacts[0]
     const isChatActive = chatStore.activeUser?.id === contact.id
 
@@ -93,7 +102,11 @@ const renderChat = (props: RenderChatType) => {
           color={contact.avatarColor}
         />
         <div className='min-is-0 flex-auto'>
-          <Typography color='inherit'>{contact?.fullName}</Typography>
+          <Typography color='inherit' className='flex items-center gap-1'>
+            {contact?.fullName}
+            {contact?.role === 'LINE' && <i className='tabler-brand-line text-success text-sm' />}
+            {contact?.role === 'FACEBOOK' && <i className='tabler-brand-facebook text-info text-sm' />}
+          </Typography>
           {chat.chat.length ? (
             <Typography variant='body2' color={isChatActive ? 'inherit' : 'text.secondary'} className='truncate'>
               {chat.chat[chat.chat.length - 1].message}
@@ -149,6 +162,7 @@ const SidebarLeft = (props: Props) => {
   // States
   const [userSidebar, setUserSidebar] = useState(false)
   const [searchValue, setSearchValue] = useState<string | null>()
+  const [activeTab, setActiveTab] = useState<'ALL' | 'LINE' | 'FACEBOOK'>('ALL')
 
   const handleChange = (event: any, newValue: string | null) => {
     setSearchValue(newValue)
@@ -264,6 +278,30 @@ const SidebarLeft = (props: Props) => {
             ) : null}
           </div>
         </div>
+
+        <Tabs
+          value={activeTab}
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          variant='fullWidth'
+          className='border-be'
+          sx={{ minHeight: 48, '& .MuiTab-root': { minHeight: 48, padding: '12px 0' } }}
+        >
+          <Tab value='ALL' label='All' />
+          <Tab
+            value='LINE'
+            label='LINE'
+            icon={<i className='tabler-brand-line text-success' />}
+            iconPosition='start'
+            sx={{ gap: 1 }}
+          />
+          <Tab
+            value='FACEBOOK'
+            label='Facebook'
+            icon={<i className='tabler-brand-facebook text-info' />}
+            iconPosition='start'
+            sx={{ gap: 1 }}
+          />
+        </Tabs>
         <ScrollWrapper isBelowLgScreen={isBelowLgScreen}>
           <ul className='p-3 pbs-4'>
             {renderChat({
@@ -272,7 +310,8 @@ const SidebarLeft = (props: Props) => {
               backdropOpen,
               setSidebarOpen,
               isBelowMdScreen,
-              setBackdropOpen
+              setBackdropOpen,
+              activeTab
             })}
           </ul>
         </ScrollWrapper>

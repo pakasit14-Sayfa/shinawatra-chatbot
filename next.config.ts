@@ -11,13 +11,13 @@ const nextConfig: NextConfig = {
         locale: false
       },
       {
-        source: '/:lang(en|fr|ar)',
+        source: '/:lang(en|th)',
         destination: '/:lang/dashboards/crm',
         permanent: true,
         locale: false
       },
       {
-        source: '/:path((?!en|fr|ar|front-pages|images|api|favicon.ico).*)*',
+        source: '/:path((?!en|th|front-pages|images|api|favicon.ico).*)*',
         destination: '/en/:path*',
         permanent: true,
         locale: false

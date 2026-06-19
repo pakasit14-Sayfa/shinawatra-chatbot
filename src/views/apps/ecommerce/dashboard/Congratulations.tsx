@@ -1,3 +1,9 @@
+'use client'
+
+// React/Next Imports
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -6,22 +12,25 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 const CongratulationsJohn = () => {
+  const params = useParams()
+  const { lang: locale } = params
+
   return (
     <Card>
       <Grid container>
         <Grid size={{ xs: 8 }}>
           <CardContent>
             <Typography variant='h5' className='mbe-0.5'>
-              Congratulations John 🎉
+              Welcome Admin 🤖
             </Typography>
             <Typography variant='subtitle1' className='mbe-2'>
-              Best seller of the month
+              Today's AI Performance
             </Typography>
             <Typography variant='h4' color='primary.main' className='mbe-1'>
-              $48.9k
+              982 Chats
             </Typography>
-            <Button variant='contained' color='primary'>
-              View Sales
+            <Button component={Link} href={`/${locale}/apps/chat`} variant='contained' color='primary'>
+              View Active Chats
             </Button>
           </CardContent>
         </Grid>

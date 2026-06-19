@@ -50,6 +50,58 @@ app.post('/api/admin/toggle', authMiddleware, async (req, res) => {
     res.sendStatus(200);
 });
 
+// Admin sends message to user
+app.post('/api/admin/send-message', authMiddleware, async (req, res) => {
+    try {
+        const { platform, platformUserId, message } = req.body;
+        
+        // Find user to get tenant_id
+        const user = await db.prisma.user.findUnique({
+            where: { platform_user_id: platformUserId }
+        });
+        
+        if (!user || !user.tenant_id) {
+            return res.status(404).json({ error: 'User or tenant config not found' });
+        }
+        
+        const tenantConfig = getTenantConfig(user.tenant_id);
+        if (!tenantConfig) {
+            return res.status(400).json({ error: 'Tenant config not found in config.js' });
+        }
+        
+        // Lock chat automatically when admin sends a message
+        await lockChat(platform, platformUserId);
+        
+        // Log the message in the database as 'admin'
+        const session = await db.getOrCreateSession(user.id);
+        await db.logChatMessage(session.id, 'admin', message);
+        
+        // Send the message to the user via LINE Push API or Meta Send API
+        if (platform === 'line') {
+            await axios.post(
+                'https://api.line.me/v2/bot/message/push',
+                {
+                    to: platformUserId,
+                    messages: buildLineMessages(message)
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${tenantConfig.lineAccessToken}`
+                    }
+                }
+            );
+        } else if (platform === 'facebook') {
+            await deliverMessage('facebook', platformUserId, message, null, tenantConfig.fbAccessToken);
+        }
+        
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('[Admin Send Error]', error.response?.data || error.message);
+        res.status(500).json({ error: 'Failed to send message' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 const DIFY_API_URL = process.env.DIFY_API_URL || 'https://api.dify.ai/v1/chat-messages';
 
@@ -201,7 +253,7 @@ app.post('/webhook/line/:campus', async (req, res) => {
                     console.log(`\n[LINE] 📩 "${combinedText.replace(/\n/g, ' | ')}"`);
 
                     try {
-                        const user = await db.getOrCreateUser('line', userId);
+                        const user = await db.getOrCreateUser('line', userId, null, campusPath);
                         const session = await db.getOrCreateSession(user.id);
                         const chatLog = await db.logChatMessage(session.id, 'user', combinedText);
 
@@ -305,7 +357,7 @@ app.post('/webhook/meta', async (req, res) => {
                     processFn: async (userId, combinedText) => {
                         console.log(`[META] 📩 (จากโฆษณา) เริ่มต้อนรับลูกค้าเข้าหลักสูตร`);
                         try {
-                            const user = await db.getOrCreateUser('facebook', userId);
+                            const user = await db.getOrCreateUser('facebook', userId, null, pageId);
                             const session = await db.getOrCreateSession(user.id);
                             await db.logChatMessage(session.id, 'user', combinedText);
 
@@ -394,7 +446,7 @@ app.post('/webhook/meta', async (req, res) => {
                         console.log(`\n[META] 📩 "${combinedText.replace(/\n/g, ' | ')}"`);
 
                         try {
-                            const user = await db.getOrCreateUser('facebook', userId);
+                            const user = await db.getOrCreateUser('facebook', userId, null, pageId);
                             const session = await db.getOrCreateSession(user.id);
                             const chatLog = await db.logChatMessage(session.id, 'user', combinedText);
 

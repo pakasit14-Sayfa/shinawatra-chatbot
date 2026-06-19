@@ -44,9 +44,15 @@ const ChatWrapper = () => {
   const isBelowMdScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
   const isBelowSmScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
 
-  // Fetch real chat data on mount
+  // Fetch real chat data on mount and poll every 3 seconds
   useEffect(() => {
     dispatch(fetchChatData() as any)
+
+    const interval = setInterval(() => {
+      dispatch(fetchChatData() as any)
+    }, 3000)
+
+    return () => clearInterval(interval)
   }, [dispatch])
 
   // Get active user’s data

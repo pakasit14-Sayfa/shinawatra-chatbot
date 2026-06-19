@@ -12,6 +12,28 @@ export const fetchChatData = createAsyncThunk('chat/fetchData', async () => {
   return data as ChatDataType
 })
 
+export const sendMessageAsync = createAsyncThunk(
+  'chat/sendMessage',
+  async ({ msg, platform, platformUserId }: { msg: string; platform: string; platformUserId: string }, { dispatch }) => {
+    // Optimistically update the UI
+    dispatch(chatSlice.actions.sendMsg({ msg }))
+
+    // Send to our Next.js API
+    const response = await fetch('/api/chat/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform: platform.toLowerCase(), platformUserId, message: msg })
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to send message')
+    }
+
+    return data
+  }
+)
+
 const initialState: ChatDataType = {
   profileUser: {} as any,
   contacts: [],
@@ -84,8 +106,22 @@ export const chatSlice = createSlice({
     }
   },
   extraReducers: builder => {
-    builder.addCase(fetchChatData.fulfilled, (state, action) => {
-      return action.payload
+    builder.addCase(fetchChatData.fulfilled, (state, action: any) => {
+      // If the API returns an error (e.g. database connection failed), don't wipe the state
+      if (action.payload && action.payload.error) {
+        return state
+      }
+
+      const currentActiveUserId = state.activeUser?.id;
+      const newState = action.payload;
+
+      // Preserve the active user so polling doesn't reset the selected chat
+      if (currentActiveUserId) {
+        const updatedActiveUser = newState.contacts.find((c: any) => c.id === currentActiveUserId);
+        newState.activeUser = updatedActiveUser || state.activeUser;
+      }
+
+      return newState
     })
   }
 })

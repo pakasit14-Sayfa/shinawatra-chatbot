@@ -39,6 +39,7 @@ export async function GET() {
 
       contacts.push({
         id: user.id,
+        platformUserId: user.platform_user_id,
         fullName: user.display_name || user.platform_user_id,
         role: user.platform.toUpperCase(),
         about: `ช่องทาง: ${user.platform}`,

@@ -20,27 +20,27 @@ type DataType = {
 
 const data: DataType[] = [
   {
-    stats: '230k',
-    title: 'Sales',
+    stats: '1,248',
+    title: 'Total Chats',
     color: 'primary',
-    icon: 'tabler-chart-pie-2'
+    icon: 'tabler-message-circle'
   },
   {
-    color: 'info',
-    stats: '8.549k',
-    title: 'Customers',
-    icon: 'tabler-users'
+    color: 'success',
+    stats: '982',
+    title: 'AI Handled',
+    icon: 'tabler-robot'
   },
   {
     color: 'error',
-    stats: '1.423k',
-    title: 'Products',
-    icon: 'tabler-shopping-cart'
+    stats: '266',
+    title: 'Escalated',
+    icon: 'tabler-user-exclamation'
   },
   {
-    stats: '$9745',
-    color: 'success',
-    title: 'Revenue',
+    stats: '142',
+    color: 'warning',
+    title: 'Closed Deals',
     icon: 'tabler-currency-dollar'
   }
 ]
@@ -49,10 +49,10 @@ const StatisticsCard = () => {
   return (
     <Card>
       <CardHeader
-        title='Statistics'
+        title='Chatbot Overview'
         action={
           <Typography variant='subtitle2' color='text.disabled'>
-            Updated 1 month ago
+            Updated 1 min ago
           </Typography>
         }
       />

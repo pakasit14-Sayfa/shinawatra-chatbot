@@ -22,7 +22,7 @@ import type { ContactType } from '@/types/apps/chatTypes'
 import type { AppDispatch } from '@/redux-store'
 
 // Slice Imports
-import { sendMsg } from '@/redux-store/slices/chat'
+import { sendMessageAsync } from '@/redux-store/slices/chat'
 
 // Component Imports
 import CustomIconButton from '@core/components/mui/IconButton'
@@ -112,7 +112,11 @@ const SendMsgForm = ({ dispatch, activeUser, isBelowSmScreen, messageInputRef }:
     event.preventDefault()
 
     if (msg.trim() !== '') {
-      dispatch(sendMsg({ msg }))
+      dispatch(sendMessageAsync({ 
+        msg, 
+        platform: activeUser.role, 
+        platformUserId: activeUser.platformUserId as string 
+      }))
       setMsg('')
     }
   }

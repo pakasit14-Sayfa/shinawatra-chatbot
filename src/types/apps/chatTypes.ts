@@ -22,6 +22,7 @@ export type ContactType = {
   id: number
   fullName: string
   role: string
+  platformUserId?: string
   about: string
   avatar?: string
   avatarColor?: ThemeColor

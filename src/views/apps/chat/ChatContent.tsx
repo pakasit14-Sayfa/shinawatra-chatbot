@@ -57,7 +57,11 @@ const UserAvatar = ({
       badgeColor={statusObj[activeUser?.status || 'offline']}
     />
     <div>
-      <Typography color='text.primary'>{activeUser?.fullName}</Typography>
+      <Typography color='text.primary' className='flex items-center gap-1'>
+        {activeUser?.fullName}
+        {activeUser?.role === 'LINE' && <i className='tabler-brand-line text-success text-base' />}
+        {activeUser?.role === 'FACEBOOK' && <i className='tabler-brand-facebook text-info text-base' />}
+      </Typography>
       <Typography variant='body2'>{activeUser?.role}</Typography>
     </div>
   </div>

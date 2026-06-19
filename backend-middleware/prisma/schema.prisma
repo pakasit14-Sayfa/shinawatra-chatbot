@@ -14,6 +14,7 @@ model User {
   id               Int           @id @default(autoincrement())
   platform         String        @db.VarChar(50)
   platform_user_id String        @unique @db.VarChar(255)
+  tenant_id        String?       @db.VarChar(255) // Added for Multi-Tenancy (FB Page ID / LINE Campus)
   display_name     String?       @db.VarChar(255)
   created_at       DateTime      @default(now())
 
