@@ -6,7 +6,7 @@ async function convertChatToTrainingData(chatData) {
   const trainingData = [];
   for (const chat of chatData) {
     if (!chat.user_message || !chat.assistant_message) continue;
-    
+
     // Clean data slightly
     const userMsg = chat.user_message.replace(/[\r\n]+/g, ' ');
     const asstMsg = chat.assistant_message.replace(/[\r\n]+/g, ' ');
@@ -36,13 +36,13 @@ async function runFullPipeline() {
   console.log("╚════════════════════════════════════════════════════╝\n");
 
   if (!process.env.FB_PAGE_TOKEN_1) {
-     console.log("❌ ข้อผิดพลาด: ไม่พบ FB_PAGE_TOKEN_1 ในไฟล์ .env");
-     return;
+    console.log("❌ ข้อผิดพลาด: ไม่พบ FB_PAGE_TOKEN_1 ในไฟล์ .env");
+    return;
   }
-  
+
   if (process.env.FB_PAGE_ID_1 === 'ใส่_ID_เพจที่_1' || !process.env.FB_PAGE_ID_1) {
-     console.log("❌ ข้อผิดพลาด: คุณยังไม่ได้ใส่ FB_PAGE_ID_1 ที่ถูกต้องในไฟล์ .env");
-     return;
+    console.log("❌ ข้อผิดพลาด: คุณยังไม่ได้ใส่ FB_PAGE_ID_1 ที่ถูกต้องในไฟล์ .env");
+    return;
   }
 
   try {
@@ -54,12 +54,12 @@ async function runFullPipeline() {
     }
 
     const trainingData = await convertChatToTrainingData(chatData);
-    
+
     if (trainingData.length > 0) {
-       await saveAsJsonl(trainingData, `training_data.jsonl`);
-       console.log("\n🚀 พร้อมนำไฟล์ training_data.jsonl ไปเทรน Fine-tune บน OpenAI แล้วครับ!");
+      await saveAsJsonl(trainingData, `training_data.jsonl`);
+      console.log("\n🚀 พร้อมนำไฟล์ training_data.jsonl ไปเทรน Fine-tune บน OpenAI แล้วครับ!");
     } else {
-       console.log("\n⚠️ ข้อมูลแชทมีแต่มันสั้นเกินไปจนถูกคัดออกหมดครับ");
+      console.log("\n⚠️ ข้อมูลแชทมีแต่มันสั้นเกินไปจนถูกคัดออกหมดครับ");
     }
 
   } catch (error) {
