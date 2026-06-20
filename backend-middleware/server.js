@@ -16,8 +16,33 @@ const db = require('./database');
 const { processLineImage, processMetaAttachment } = require('./media-handler');
 
 const app = express();
-app.use(express.json());
-app.use('/images', express.static('public/images'));
+app.set('trust proxy', 1); // รองรับ Ngrok / Reverse Proxy
+const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 100,
+    message: 'Too many requests, please try again later.'
+});
+
+const sanitizeInput = (text) => {
+    if (!text) return '';
+    return text.trim().slice(0, 5000).replace(/[<>\'\"]/g, '');
+};
+
+const path = require('path');
+app.use(express.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf;
+    }
+}));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
+// ---------- Health Check ----------
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
 
 // ---------- Admin Dashboard ----------
 const adminUser = process.env.ADMIN_USER || 'admin';
@@ -178,7 +203,11 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
             conversations[userKey] = data.conversation_id;
         }
 
-        return data.answer || '';
+        if (!data.answer || data.answer.trim() === '') {
+            console.error('[Dify Error] Received empty answer from Dify');
+            return 'ขออภัยค่ะ ระบบประมวลผลคำตอบขัดข้องชั่วคราว กรุณารอสักครู่นะคะ หรือพิมพ์ "ติดต่อแอดมิน" ได้เลยค่ะ';
+        }
+        return data.answer;
     } catch (error) {
         console.error(`[Dify Error]`, error.response?.data || error.message);
         alertAdmin(`🔴 Dify ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.response?.data?.message || error.message}`, 'dify-error');
@@ -197,7 +226,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
 //    ผ่านระบบคิว (กันซ้ำ + รวบข้อความรัว + ตอบตามลำดับ)
 //    ส่งกลับด้วย reply token (ฟรี ไม่กินโควต้า push)
 // ---------------------------------------------------------
-app.post('/webhook/line/:campus', async (req, res) => {
+app.post('/webhook/line/:campus', limiter, async (req, res) => {
     res.sendStatus(200); // ตอบทันที กัน LINE retry
 
     const campusPath = `line_${req.params.campus}`;
@@ -243,6 +272,8 @@ app.post('/webhook/line/:campus', async (req, res) => {
             if (locked) {
                 continue;
             }
+
+            text = sanitizeInput(text);
 
             handleIncoming({
                 userId: lineUserId,
@@ -340,7 +371,18 @@ app.get('/webhook/meta', (req, res) => {
 //    [แก้บั๊ก] วนลูป entry.messaging ทุกตัว ไม่ใช่แค่ [0]
 //    ผ่านระบบคิวเหมือนกัน
 // ---------------------------------------------------------
-app.post('/webhook/meta', async (req, res) => {
+app.post('/webhook/meta', limiter, async (req, res) => {
+    // Webhook Signature Verification
+    if (process.env.FB_APP_SECRET) {
+        const signature = req.headers['x-hub-signature-256'];
+        if (!signature) {
+            return res.status(403).send('No signature provided');
+        }
+        const expectedSignature = 'sha256=' + crypto.createHmac('sha256', process.env.FB_APP_SECRET).update(req.rawBody).digest('hex');
+        if (signature !== expectedSignature) {
+            return res.status(403).send('Invalid signature');
+        }
+    }
     res.status(200).send('EVENT_RECEIVED'); // ตอบครั้งเดียว ตรงนี้ที่เดียว
 
     const body = req.body;
@@ -369,10 +411,11 @@ app.post('/webhook/meta', async (req, res) => {
                 const virtualText = refToVirtualMessage(refCode); // แปลง ref -> ข้อความตรงหลักสูตร
                 console.log(`\n[META] 🎯 ลูกค้ามาจากโฆษณา/โพสต์ ref=${refCode || 'unknown'} -> "${virtualText}"`);
 
+                const sanitizedVirtualText = sanitizeInput(virtualText);
                 handleIncoming({
                     userId: refUserId,
                     messageId: refId,
-                    text: virtualText,   // ข้อความเสมือนตามหลักสูตรที่โฆษณาโปรโมท
+                    text: sanitizedVirtualText,   // ข้อความเสมือนตามหลักสูตรที่โฆษณาโปรโมท
                     meta: {},
                     processFn: async (userId, combinedText) => {
                         console.log(`[META] 📩 (จากโฆษณา) เริ่มต้อนรับลูกค้าเข้าหลักสูตร`);
@@ -468,10 +511,11 @@ app.post('/webhook/meta', async (req, res) => {
                 if (referral) {
                     console.log(`[META] 🎯 ข้อความนี้มาจากโฆษณา ref=${referral.ref || referral.ad_id || 'unknown'}`);
                 }
+                const sanitizedText = sanitizeInput(webhookEvent.message.text);
                 handleIncoming({
                     userId: senderId,
                     messageId: webhookEvent.message.mid,
-                    text: webhookEvent.message.text,
+                    text: sanitizedText,
                     meta: {},
                     processFn: async (userId, combinedText) => {
                         try {
@@ -508,14 +552,9 @@ app.post('/webhook/meta', async (req, res) => {
                             const difyAnswer = validation.safeMessage;
                             await db.logChatMessage(session.id, 'bot', difyAnswer);
 
-                            let botName = 'Facebook';
-                            if (pagePath === 'fb_1') botName = 'FB เพจที่ 1';
-                            else if (pagePath === 'fb_2') botName = 'FB เพจที่ 2';
-                            else if (pagePath === 'fb_3') botName = 'FB เพจที่ 3';
-                            else if (pagePath === 'fb_4') botName = 'FB เพจที่ 4';
-                            else if (pagePath === 'fb_5') botName = 'FB เพจที่ 5';
-                            else if (pagePath === 'fb_6') botName = 'FB เพจที่ 6';
-                            else if (pagePath === 'fb_7') botName = 'FB เพจที่ 7';
+                            let botName = `Facebook (Page: ${pageId})`;
+                            const cfg = getTenantConfig(pageId);
+                            if (cfg && cfg.pageName) botName = cfg.pageName;
 
                             console.log('\n=============================================');
                             console.log(`📘 แหล่งที่มา: ${botName}`);

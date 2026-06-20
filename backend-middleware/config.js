@@ -55,10 +55,10 @@ const CONFIG = {
     },
 
     [process.env.FB_PAGE_ID_2]: {
-      campus: 'Project_1',
+      campus: 'Project_2',
       channel: 'facebook',
       pageName: 'FB เพจที่ 2',
-      difyApiKey: process.env.DIFY_API_KEY_BRAIN_1,  // สมมติใช้สมอง 1
+      difyApiKey: process.env.DIFY_API_KEY_BRAIN_2,  // แก้ไขให้วิ่งเข้าสมอง 2 (ชินวัตร)
       fbAccessToken: process.env.FB_PAGE_TOKEN_2,
       personaPrefix: "[System: สวมบทบาทแอดมินเพจ 2]\n\nคำถาม: "
     },
@@ -73,10 +73,10 @@ const CONFIG = {
     },
 
     [process.env.FB_PAGE_ID_4]: {
-      campus: 'Project_2',
+      campus: 'Project_3',
       channel: 'facebook',
       pageName: 'FB เพจที่ 4',
-      difyApiKey: process.env.DIFY_API_KEY_BRAIN_2,  // สมมติใช้สมอง 2
+      difyApiKey: process.env.DIFY_API_KEY_BRAIN_3,  // แก้ไขให้วิ่งเข้าสมอง 3 (จีน)
       fbAccessToken: process.env.FB_PAGE_TOKEN_4,
       personaPrefix: "[System: สวมบทบาทแอดมินเพจ 4]\n\nคำถาม: "
     },

@@ -66,6 +66,10 @@ function metaUrl(token) {
 }
 
 async function fbSendText(recipientId, text, token) {
+  if (!text || text.trim().length === 0) {
+    console.error('[FB Send Error] Attempted to send empty text message');
+    return;
+  }
   await axios.post(metaUrl(token), {
     recipient: { id: recipientId },
     message: { text },
@@ -73,6 +77,10 @@ async function fbSendText(recipientId, text, token) {
 }
 
 async function fbSendImage(recipientId, imageUrl, token) {
+  if (!imageUrl || imageUrl.trim().length === 0) {
+    console.error('[FB Send Error] Attempted to send empty image URL');
+    return;
+  }
   await axios.post(metaUrl(token), {
     recipient: { id: recipientId },
     message: {
@@ -94,6 +102,10 @@ async function fbSendImage(recipientId, imageUrl, token) {
  * ลำดับ ข้อความ -> รูป -> ข้อความ จะถูกรักษาไว้ตามต้นฉบับ
  */
 function buildLineMessages(difyText) {
+  if (!difyText || difyText.trim().length === 0) {
+    console.error('[LINE Build Error] Empty text received');
+    return [];
+  }
   const segments = parseSegments(difyText);
   const messages = segments.map(seg =>
     seg.type === 'text'

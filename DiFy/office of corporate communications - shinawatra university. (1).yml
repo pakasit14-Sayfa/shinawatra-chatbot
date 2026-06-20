@@ -346,13 +346,7 @@ workflow:
       type: custom
       width: 242
     - data:
-        code: "import re\n\ndef main(text: str) -> dict:\n    # ค้นหาข้อความในวงเล็บก้ามปู\
-          \ เช่น [สถานะ:ป.โทบริหาร]\n    pattern = r\"\\[.*?\\]\"\n    match = re.search(pattern,\
-          \ text)\n    \n    if match:\n        tag = match.group(0)  # ดึง Tag ออกมา\n\
-          \        clean_text = re.sub(pattern, \"\", text).strip() # ลบ Tag ออกจากข้อความหลัก\n\
-          \    else:\n        tag = \"\"\n        clean_text = text.strip()\n    \
-          \    \n    return {\n        \"tag\": tag,\n        \"clean_text\": clean_text\n\
-          \    }"
+        code: "import re\n\ndef main(text: str) -> dict:\n    try:\n        pattern = r\"\\[.*?\\]\"\n        match = re.search(pattern, text)\n        if match:\n            tag = match.group(0)\n            clean_text = re.sub(pattern, \"\", text).strip()\n            print(f\"[LOG] Found tag: {tag}\")\n        else:\n            tag = \"\"\n            clean_text = text.strip()\n            print(\"[LOG] No tag found, fallback to empty\")\n        return {\n            \"tag\": tag,\n            \"clean_text\": clean_text\n        }\n    except Exception as e:\n        print(f\"[ERROR] Exception in Code Node: {str(e)}\")\n        return {\n            \"tag\": \"\",\n            \"clean_text\": text.strip()\n        }"
         code_language: python3
         outputs:
           clean_text:
@@ -393,7 +387,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: d4598241-25a6-4083-b077-0fe232b86488
@@ -534,7 +528,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: db0502ee-2d2d-41c2-94ae-dd688ccea9a9
@@ -589,7 +583,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: fb37de2b-d32c-47d9-8896-cb2a4c931fb0
@@ -643,7 +637,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: c6cce0cb-29e2-484f-bd9f-2fd640a4d8ab
@@ -694,7 +688,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: 696a4604-b93b-41f4-bfe5-3b1bbfa8e3b4
@@ -782,7 +776,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: 3d59e501-00ed-459b-9d09-e319213ed9de
@@ -961,7 +955,7 @@ workflow:
           completion_params:
             temperature: 0.7
           mode: chat
-          name: gpt-4.1-mini
+          name: gpt-4o-mini
           provider: langgenius/openai/openai
         prompt_template:
         - id: da52cb23-621d-4700-9067-5a7c4cde9c6a
