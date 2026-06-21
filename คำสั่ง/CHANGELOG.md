@@ -15,3 +15,8 @@
 
 ### Fixed (แก้บั๊ก)
 - **`server.js`:** แก้บั๊กการประกาศตัวแปรในส่วนรับข้อความ LINE ที่ใช้คำสั่ง `const text = ...` แล้วมีการแก้ค่า (Reassign) ทีหลังด้วยฟังก์ชัน `sanitizeInput()` ซึ่งก่อให้เกิด `TypeError: Assignment to constant variable` ได้เปลี่ยนเป็น `let text = ...` ทำให้โค้ดรันได้ปกติ
+
+### Known Issues / ขั้นตอนถัดไป
+- ต้องใส่ค่าจริงของ `LINE_SECRET_1/2/3` ใน `.env` บนเครื่อง Production (ปัจจุบันเป็นค่า Placeholder)
+- ต้องทดสอบ 403 response (กรณีไม่มี x-line-signature) และการคงบริบท Conversation หลัง Restart Server บนเครื่อง Production
+- (หมายเหตุ: ไฟล์ `.env.example` ได้ทำการลบตัวแปรซากเก่าออกและอัปเดตเรียบร้อยแล้วใน Commit ล่าสุด)
