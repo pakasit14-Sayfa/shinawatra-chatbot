@@ -162,10 +162,57 @@ function refToVirtualMessage(ref) {
 }
 
 /**
- * เก็บ Conversation ID ไว้ใน Memory ชั่วคราว
- * (สำหรับใช้งานจริงระยะยาว แนะนำย้ายไป Redis/SQLite เพื่อไม่ให้หายตอน restart)
+ * เก็บ Conversation ID ไว้ใน Memory ชั่วคราว และ Redis (ป้องกันการหายตอน restart)
  */
 const conversations = {};
+
+const redis = require('redis');
+
+const redisClient = redis.createClient({
+  socket: {
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379
+  },
+  password: process.env.REDIS_PASSWORD || undefined
+});
+
+let redisReady = false;
+redisClient.on('error', (err) => {
+  redisReady = false;
+  console.error('[Redis Error]', err.message);
+});
+redisClient.on('ready', () => {
+  redisReady = true;
+  console.log('[Redis] เชื่อมต่อสำเร็จ ✅');
+});
+redisClient.connect().catch(err => {
+  console.error('[Redis] เชื่อมต่อไม่สำเร็จ จะใช้ Memory ชั่วคราวแทน:', err.message);
+});
+
+const CONVERSATION_TTL_SECONDS = 60 * 60 * 24 * 30; // เก็บ 30 วัน
+
+async function getConversationId(userKey) {
+  if (redisReady) {
+    try {
+      const value = await redisClient.get(`conv:${userKey}`);
+      if (value) return value;
+    } catch (err) {
+      console.error('[Redis Get Error]', err.message);
+    }
+  }
+  return conversations[userKey] || '';
+}
+
+async function setConversationId(userKey, conversationId) {
+  conversations[userKey] = conversationId;
+  if (redisReady) {
+    try {
+      await redisClient.set(`conv:${userKey}`, conversationId, { EX: CONVERSATION_TTL_SECONDS });
+    } catch (err) {
+      console.error('[Redis Set Error]', err.message);
+    }
+  }
+}
 
 /**
  * ---------------------------------------------------------
@@ -174,7 +221,7 @@ const conversations = {};
  */
 async function sendToDify(userId, platform, userMessage, tenantConfig) {
     const userKey = `${platform}:${userId}`;
-    const conversationId = conversations[userKey] || '';
+    const conversationId = await getConversationId(userKey);
 
     const promptText = tenantConfig && tenantConfig.personaPrefix ? `${tenantConfig.personaPrefix}${userMessage}` : userMessage;
     const apiKey = tenantConfig ? tenantConfig.difyApiKey : process.env.DIFY_API_KEY;
@@ -200,7 +247,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
         const data = response.data;
 
         if (data.conversation_id) {
-            conversations[userKey] = data.conversation_id;
+            await setConversationId(userKey, data.conversation_id);
         }
 
         if (!data.answer || data.answer.trim() === '') {
@@ -227,15 +274,33 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
 //    ส่งกลับด้วย reply token (ฟรี ไม่กินโควต้า push)
 // ---------------------------------------------------------
 app.post('/webhook/line/:campus', limiter, async (req, res) => {
-    res.sendStatus(200); // ตอบทันที กัน LINE retry
-
     const campusPath = `line_${req.params.campus}`;
     const tenantConfig = getTenantConfig(campusPath);
 
     if (!tenantConfig) {
         console.warn(`[LINE] Config not found for ${campusPath}`);
-        return;
+        return res.sendStatus(404);
     }
+
+    // ----- ตรวจลายเซ็น LINE ก่อนทำอะไรทั้งสิ้น -----
+    const signature = req.headers['x-line-signature'];
+    if (tenantConfig.lineChannelSecret) {
+        if (!signature) {
+            return res.status(403).send('No signature provided');
+        }
+        const expectedSignature = crypto
+            .createHmac('SHA256', tenantConfig.lineChannelSecret)
+            .update(req.rawBody)
+            .digest('base64');
+        if (signature !== expectedSignature) {
+            console.warn(`[LINE] ⛔ Signature ไม่ตรง บล็อกคำขอ (${campusPath})`);
+            return res.status(403).send('Invalid signature');
+        }
+    } else {
+        console.warn(`[LINE] ⚠️ ไม่ได้ตั้งค่า LINE_SECRET สำหรับ ${campusPath} — ข้ามการตรวจสอบ`);
+    }
+
+    res.sendStatus(200); // ตอบทันที กัน LINE retry
 
     const events = req.body.events || [];
 
@@ -251,7 +316,7 @@ app.post('/webhook/line/:campus', limiter, async (req, res) => {
 
             if (!isText && !isImage) continue;
 
-            const text = isText ? event.message.text : '[Sent an image]';
+            let text = isText ? event.message.text : '[Sent an image]';
 
             trackUser('line', lineUserId, text);
 

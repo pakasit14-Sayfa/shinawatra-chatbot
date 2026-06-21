@@ -18,6 +18,7 @@ const CONFIG = {
       pageName: 'LINE ตัวที่ 1',
       difyApiKey: process.env.DIFY_API_KEY_BRAIN_1,  // ดึงสมองที่ 1
       lineAccessToken: process.env.LINE_TOKEN_1,     // ใช้กุญแจส่งของ LINE 1
+      lineChannelSecret: process.env.LINE_SECRET_1,
       personaPrefix: "[System: ตอบคำถามสั้นๆ สุภาพ]\n\nคำถาม: "
     },
 
@@ -28,6 +29,7 @@ const CONFIG = {
       pageName: 'LINE ตัวที่ 2',
       difyApiKey: process.env.DIFY_API_KEY_BRAIN_2,  // ดึงสมองที่ 2
       lineAccessToken: process.env.LINE_TOKEN_2,     // ใช้กุญแจส่งของ LINE 2
+      lineChannelSecret: process.env.LINE_SECRET_2,
       personaPrefix: "[System: ตอบคำถามทางการ]\n\nคำถาม: "
     },
 
@@ -38,6 +40,7 @@ const CONFIG = {
       pageName: 'LINE ตัวที่ 3',
       difyApiKey: process.env.DIFY_API_KEY_BRAIN_3,  // ดึงสมองที่ 3
       lineAccessToken: process.env.LINE_TOKEN_3,     // ใช้กุญแจส่งของ LINE 3
+      lineChannelSecret: process.env.LINE_SECRET_3,
       personaPrefix: "[System: ตอบคำถามเป็นกันเอง]\n\nคำถาม: "
     },
 
