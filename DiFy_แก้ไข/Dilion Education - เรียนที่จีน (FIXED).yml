@@ -1,44 +1,44 @@
 app:
   description: แชทบอทแนะนำเรียนต่อ 4 เมืองในจีน (กว่างโจว, เซี่ยงไฮ้, เวยไห่, ฮาร์บิน)
   icon: 0b7682f0-35f7-47ec-9ed3-f6f7d9c9af91
-  icon_background: ''
+  icon_background: ""
   icon_type: image
   mode: advanced-chat
   name: Dilion Education - เรียนที่จีน
   use_icon_as_answer_icon: false
 dependencies:
-- current_identifier: null
-  type: marketplace
-  value:
-    marketplace_plugin_unique_identifier: langgenius/openai:0.4.2@21195ee1321849e0a7d4b3f6b2fd8c2be23ea6c7182e1b444ecc4c1711b52468
-    version: null
+  - current_identifier: null
+    type: marketplace
+    value:
+      marketplace_plugin_unique_identifier: langgenius/openai:0.4.2@21195ee1321849e0a7d4b3f6b2fd8c2be23ea6c7182e1b444ecc4c1711b52468
+      version: null
 kind: app
 version: 0.6.0
 workflow:
   conversation_variables:
-  - description: ''
-    id: c8f525c9-0ae9-4270-ae17-3aeb34b284d7
-    name: education_degree
-    selector:
-    - conversation
-    - education_degree
-    value: ''
-    value_type: string
+    - description: ""
+      id: c8f525c9-0ae9-4270-ae17-3aeb34b284d7
+      name: education_degree
+      selector:
+        - conversation
+        - education_degree
+      value: ""
+      value_type: string
   environment_variables: []
   features:
     file_upload:
       allowed_file_extensions:
-      - .JPG
-      - .JPEG
-      - .PNG
-      - .GIF
-      - .WEBP
-      - .SVG
+        - .JPG
+        - .JPEG
+        - .PNG
+        - .GIF
+        - .WEBP
+        - .SVG
       allowed_file_types:
-      - image
+        - image
       allowed_file_upload_methods:
-      - local_file
-      - remote_url
+        - local_file
+        - remote_url
       enabled: false
       fileUploadConfig:
         attachment_image_file_size_limit: 2
@@ -55,10 +55,10 @@ workflow:
         enabled: false
         number_limits: 3
         transfer_methods:
-        - local_file
-        - remote_url
+          - local_file
+          - remote_url
       number_limits: 3
-    opening_statement: ''
+    opening_statement: ""
     retriever_resource:
       enabled: false
     sensitive_word_avoidance:
@@ -70,872 +70,1050 @@ workflow:
       enabled: false
     text_to_speech:
       enabled: false
-      language: ''
-      voice: ''
+      language: ""
+      voice: ""
   graph:
     edges:
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-true-1781582929810-target
-      selected: false
-      source: '1781583119887'
-      sourceHandle: 'true'
-      target: '1781582929810'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-b329b059-36e8-4768-86d8-59c29b145d0a-1781583264907-target
-      selected: false
-      source: '1781583119887'
-      sourceHandle: b329b059-36e8-4768-86d8-59c29b145d0a
-      target: '1781583264907'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-5972420b-0366-4766-b59c-b8afc596f489-1781583286537-target
-      selected: false
-      source: '1781583119887'
-      sourceHandle: 5972420b-0366-4766-b59c-b8afc596f489
-      target: '1781583286537'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-22594e5b-8e04-4cca-8d59-3925a12c0033-1781583306399-target
-      selected: false
-      source: '1781583119887'
-      sourceHandle: 22594e5b-8e04-4cca-8d59-3925a12c0033
-      target: '1781583306399'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
-      id: 1781582929810-source-1781586295912-target
-      selected: false
-      source: '1781582929810'
-      sourceHandle: source
-      target: '1781586295912'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
-      id: 1781583264907-source-1781586298185-target
-      selected: false
-      source: '1781583264907'
-      sourceHandle: source
-      target: '1781586298185'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
-      id: 1781583286537-source-1781586301980-target
-      selected: false
-      source: '1781583286537'
-      sourceHandle: source
-      target: '1781586301980'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
-      id: 1781583306399-source-1781586303846-target
-      selected: false
-      source: '1781583306399'
-      sourceHandle: source
-      target: '1781586303846'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInIteration: false
-        isInLoop: false
-        sourceType: llm
-        targetType: answer
-      id: 1781583348593-source-1781586307536-target
-      selected: false
-      source: '1781583348593'
-      sourceHandle: source
-      target: '1781586307536'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: knowledge-retrieval
-        targetType: llm
-      id: 1780987487599-source-1781587853209-target
-      selected: false
-      source: '1780987487599'
-      sourceHandle: source
-      target: '1781587853209'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: start
-        targetType: knowledge-retrieval
-      id: 1780974928576-source-1780987487599-target
-      source: '1780974928576'
-      sourceHandle: source
-      target: '1780987487599'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: llm
-        targetType: code
-      id: 1781587853209-source-1781196562702-target
-      source: '1781587853209'
-      sourceHandle: source
-      target: '1781196562702'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: code
-        targetType: if-else
-      id: 1781196562702-source-1781800000000-target
-      source: '1781196562702'
-      sourceHandle: source
-      target: '1781800000000'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: answer
-      id: 1781800000000-true-1781800000001-target
-      source: '1781800000000'
-      sourceHandle: 'true'
-      target: '1781800000001'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: if-else
-      id: 1781800000000-false-1781583119887-target
-      source: '1781800000000'
-      sourceHandle: 'false'
-      target: '1781583119887'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-d6578fe9-a323-42cc-9dd3-0543f62c462b-1781583348593-target
-      source: '1781583119887'
-      sourceHandle: d6578fe9-a323-42cc-9dd3-0543f62c462b
-      target: '1781583348593'
-      targetHandle: target
-      type: custom
-      zIndex: 0
-    - data:
-        isInLoop: false
-        sourceType: if-else
-        targetType: llm
-      id: 1781583119887-false-1781583348593-target
-      source: '1781583119887'
-      sourceHandle: 'false'
-      target: '1781583348593'
-      targetHandle: target
-      type: custom
-      zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-true-1781582929810-target
+        selected: false
+        source: "1781583119887"
+        sourceHandle: "true"
+        target: "1781582929810"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-b329b059-36e8-4768-86d8-59c29b145d0a-1781583264907-target
+        selected: false
+        source: "1781583119887"
+        sourceHandle: b329b059-36e8-4768-86d8-59c29b145d0a
+        target: "1781583264907"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-5972420b-0366-4766-b59c-b8afc596f489-1781583286537-target
+        selected: false
+        source: "1781583119887"
+        sourceHandle: 5972420b-0366-4766-b59c-b8afc596f489
+        target: "1781583286537"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-22594e5b-8e04-4cca-8d59-3925a12c0033-1781583306399-target
+        selected: false
+        source: "1781583119887"
+        sourceHandle: 22594e5b-8e04-4cca-8d59-3925a12c0033
+        target: "1781583306399"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: answer
+        id: 1781582929810-source-1781586295912-target
+        selected: false
+        source: "1781582929810"
+        sourceHandle: source
+        target: "1781586295912"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: answer
+        id: 1781583264907-source-1781586298185-target
+        selected: false
+        source: "1781583264907"
+        sourceHandle: source
+        target: "1781586298185"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: answer
+        id: 1781583286537-source-1781586301980-target
+        selected: false
+        source: "1781583286537"
+        sourceHandle: source
+        target: "1781586301980"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: answer
+        id: 1781583306399-source-1781586303846-target
+        selected: false
+        source: "1781583306399"
+        sourceHandle: source
+        target: "1781586303846"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInIteration: false
+          isInLoop: false
+          sourceType: llm
+          targetType: answer
+        id: 1781583348593-source-1781586307536-target
+        selected: false
+        source: "1781583348593"
+        sourceHandle: source
+        target: "1781586307536"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: knowledge-retrieval
+          targetType: llm
+        id: 1780987487599-source-1781587853209-target
+        selected: false
+        source: "1780987487599"
+        sourceHandle: source
+        target: "1781587853209"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: start
+          targetType: knowledge-retrieval
+        id: 1780974928576-source-1780987487599-target
+        source: "1780974928576"
+        sourceHandle: source
+        target: "1780987487599"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: llm
+          targetType: code
+        id: 1781587853209-source-1781196562702-target
+        source: "1781587853209"
+        sourceHandle: source
+        target: "1781196562702"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: code
+          targetType: if-else
+        id: 1781196562702-source-1781800000000-target
+        source: "1781196562702"
+        sourceHandle: source
+        target: "1781800000000"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: answer
+        id: 1781800000000-true-1781800000001-target
+        source: "1781800000000"
+        sourceHandle: "true"
+        target: "1781800000001"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: if-else
+        id: 1781800000000-false-1781583119887-target
+        source: "1781800000000"
+        sourceHandle: "false"
+        target: "1781583119887"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-d6578fe9-a323-42cc-9dd3-0543f62c462b-1781583348593-target
+        source: "1781583119887"
+        sourceHandle: d6578fe9-a323-42cc-9dd3-0543f62c462b
+        target: "1781583348593"
+        targetHandle: target
+        type: custom
+        zIndex: 0
+      - data:
+          isInLoop: false
+          sourceType: if-else
+          targetType: llm
+        id: 1781583119887-false-1781583348593-target
+        source: "1781583119887"
+        sourceHandle: "false"
+        target: "1781583348593"
+        targetHandle: target
+        type: custom
+        zIndex: 0
     nodes:
-    - data:
+      - data:
+          selected: false
+          title: เริ่ม
+          type: start
+          variables: []
+        height: 73
+        id: "1780974928576"
+        position:
+          x: 608.7051275659544
+          y: 169.83333333333334
+        positionAbsolute:
+          x: 608.7051275659544
+          y: 169.83333333333334
         selected: false
-        title: เริ่ม
-        type: start
-        variables: []
-      height: 73
-      id: '1780974928576'
-      position:
-        x: 608.7051275659544
-        y: 169.83333333333334
-      positionAbsolute:
-        x: 608.7051275659544
-        y: 169.83333333333334
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        dataset_ids:
-        - DFmPATPk7wasR96gkWgDEjpvwyAMUbFP6w2CPz7plePps4kI2FDYu8isnrZ9wI2v
-        multiple_retrieval_config:
-          reranking_enable: false
-          reranking_mode: weighted_score
-          top_k: 4
-          weights:
-            keyword_setting:
-              keyword_weight: 0
-            vector_setting:
-              embedding_model_name: text-embedding-3-large
-              embedding_provider_name: langgenius/openai/openai
-              vector_weight: 1
-            weight_type: customized
-        query_attachment_selector: []
-        query_variable_selector:
-        - sys
-        - query
-        retrieval_mode: multiple
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          dataset_ids:
+            - DFmPATPk7wasR96gkWgDEjpvwyAMUbFP6w2CPz7plePps4kI2FDYu8isnrZ9wI2v
+          multiple_retrieval_config:
+            reranking_enable: false
+            reranking_mode: weighted_score
+            top_k: 4
+            weights:
+              keyword_setting:
+                keyword_weight: 0
+              vector_setting:
+                embedding_model_name: text-embedding-3-large
+                embedding_provider_name: langgenius/openai/openai
+                vector_weight: 1
+              weight_type: customized
+          query_attachment_selector: []
+          query_variable_selector:
+            - sys
+            - query
+          retrieval_mode: multiple
+          selected: false
+          title: การดึงความรู้
+          type: knowledge-retrieval
+        height: 90
+        id: "1780987487599"
+        position:
+          x: 683.0292572483999
+          y: 326.31966111859106
+        positionAbsolute:
+          x: 683.0292572483999
+          y: 326.31966111859106
         selected: false
-        title: การดึงความรู้
-        type: knowledge-retrieval
-      height: 90
-      id: '1780987487599'
-      position:
-        x: 683.0292572483999
-        y: 326.31966111859106
-      positionAbsolute:
-        x: 683.0292572483999
-        y: 326.31966111859106
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        code: "import re\n\ndef main(text: str) -> dict:\n    try:\n        pattern\
-          \ = r\"\\[.*?\\]\"\n        match = re.search(pattern, text)\n        if\
-          \ match:\n            tag = match.group(0)\n            tag = re.sub(r'\\\
-          s*:\\s*', ':', tag)\n            clean_text = re.sub(pattern, \"\", text).strip()\n\
-          \            print(f\"[LOG] Found tag: {tag}\")\n        else:\n       \
-          \     tag = \"\"\n            clean_text = text.strip()\n            print(\"\
-          [LOG] No tag found, fallback to empty\")\n        return {\n           \
-          \ \"tag\": tag,\n            \"clean_text\": clean_text\n        }\n   \
-          \ except Exception as e:\n        print(f\"[ERROR] Exception in Code Node:\
-          \ {str(e)}\")\n        return {\n            \"tag\": \"\",\n          \
-          \  \"clean_text\": text.strip()\n        }"
-        code_language: python3
-        outputs:
-          clean_text:
-            children: null
-            type: string
-          tag:
-            children: null
-            type: string
-        selected: false
-        title: Code 2
-        type: code
-        variables:
-        - value_selector:
-          - '1781587853209'
-          - text
-          value_type: string
-          variable: text
-      height: 52
-      id: '1781196562702'
-      position:
-        x: 1400.758909142729
-        y: 0
-      positionAbsolute:
-        x: 1400.758909142729
-        y: 0
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        memory:
-          query_prompt_template: '{{#sys.query#}}
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          code: |-
+            import re
 
-
-            {{#sys.files#}}'
-          role_prefix:
-            assistant: ''
-            user: ''
-          window:
+            def main(text: str) -> dict:
+                try:
+                    pattern = r"\[.*?\]"
+                    match = re.search(pattern, text)
+                    if match:
+                        tag = match.group(0)
+                        tag = re.sub(r'\s*:\s*', ':', tag)
+                        clean_text = re.sub(pattern, "", text).strip()
+                        print(f"[LOG] Found tag: {tag}")
+                    else:
+                        tag = ""
+                        clean_text = text.strip()
+                        print("[LOG] No tag found, fallback to empty")
+                    return {
+                        "tag": tag,
+                        "clean_text": clean_text
+                    }
+                except Exception as e:
+                    print(f"[ERROR] Exception in Code Node: {str(e)}")
+                    return {
+                        "tag": "",
+                        "clean_text": text.strip()
+                    }
+          code_language: python3
+          outputs:
+            clean_text:
+              children: null
+              type: string
+            tag:
+              children: null
+              type: string
+          selected: false
+          title: Code 2
+          type: code
+          variables:
+            - value_selector:
+                - "1781587853209"
+                - text
+              value_type: string
+              variable: text
+        height: 52
+        id: "1781196562702"
+        position:
+          x: 1400.758909142729
+          y: 0
+        positionAbsolute:
+          x: 1400.758909142729
+          y: 0
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
             enabled: true
-            size: 50
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: d4598241-25a6-4083-b077-0fe232b86488
-          role: system
-          text: "คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองกว่างโจว (Guangzhou)\n\
-            ข้อมูลมหาวิทยาลัยในกว่างโจว:\n1. South China Normal University (SCNU):\
-            \ อายุ 18-40 ปี, หอพักนอก, มีคอร์ส 1 เทอมปกติ, 1 เทอมเร่งรัด, และ 1 ปี\
-            \ วีซ่า X2(1เทอม) X1(1ปี)\n2. Guangdong Teachers College of Foreign Language\
-            \ and Arts (GTC): อายุ 18-35 ปี, หอพักใน, วีซ่า X1 ทุกคอร์ส มีคอร์ส 1\
-            \ เทอมปกติ และ 1 ปี\n\nขั้นตอนการทำงาน:\n1. ถามลูกค้าย้ำว่า:\n   \"ตอนนี้ทางเรามีคอร์สที่กว่างโจวให้เลือก\
-            \ 2 ระยะเวลาค่ะ:\n   • 1 เทอม (ประมาณ 4 เดือน)\n   • 1 ปี (2 เทอม)\n \
-            \  สนใจระยะเวลาไหนคะ\"\n2. เมื่อลูกค้าตอบระยะเวลา ให้ส่งรายละเอียดคอร์สที่ตรงตามระยะเวลา\
-            \ พร้อมส่งโบชัวร์\n\nข้อมูลเพิ่มเติม: {{#context#}}\nคำสั่งเพิ่มเติม:\
-            \ ต้องใช้คำลงท้ายว่า \"ค่ะ\" เสมอ"
+            variable_selector:
+              - "1780987487599"
+              - result
+          memory:
+            query_prompt_template: |-
+              {{#sys.query#}}
+
+              {{#sys.files#}}
+            role_prefix:
+              assistant: ""
+              user: ""
+            window:
+              enabled: true
+              size: 50
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: d4598241-25a6-4083-b077-0fe232b86488
+              role: system
+              text: >
+                คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองกว่างโจว (Guangzhou)
+
+                ข้อมูลมหาวิทยาลัยในกว่างโจว:
+
+                1. South China Normal University (SCNU): อายุ 18-40 ปี,
+                หอพักนอก, มีคอร์ส 1 เทอมปกติ, 1 เทอมเร่งรัด, และ 1 ปี วีซ่า
+                X2(1เทอม) X1(1ปี)
+
+                2. Guangdong Teachers College of Foreign Language and Arts
+                (GTC): อายุ 18-35 ปี, หอพักใน, วีซ่า X1 ทุกคอร์ส มีคอร์ส 1
+                เทอมปกติ และ 1 ปี
+
+
+                ขั้นตอนการทำงาน:
+
+                1. ถามลูกค้าย้ำว่า:
+                   "ตอนนี้ทางเรามีคอร์สที่กว่างโจวให้เลือก 2 ระยะเวลาค่ะ:
+                   • 1 เทอม (ประมาณ 4 เดือน)
+                   • 1 ปี (2 เทอม)
+                   สนใจระยะเวลาไหนคะ"
+                2. เมื่อลูกค้าตอบระยะเวลา ให้ส่งรายละเอียดคอร์สที่ตรงตามระยะเวลา
+                พร้อมส่งโบชัวร์ (ให้ใช้ลิงก์รูปลักษณะ Markdown ดังต่อไปนี้เท่านั้น ห้ามแต่งลิงก์เอง):
+                - SCNU 1 เทอม: ![รายละเอียด SCNU 1 เทอม](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/scnu-1-term.jpg)
+                - SCNU 1 เทอมเร่งรัด: ![รายละเอียด SCNU 1 เทอมเร่งรัด](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/scnu-1-term-intensive.jpg)
+                - SCNU 1 ปี: ![รายละเอียด SCNU 1 ปี](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/scnu-1-year.jpg)
+                - GTC 1 เทอม: ![รายละเอียด GTC 1 เทอม](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/gtc-1-term.jpg)
+                - GTC 1 ปี: ![รายละเอียด GTC 1 ปี](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/gtc-1-year.jpg)
+
+
+                ข้อมูลเพิ่มเติม: {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - กว่างโจว
+          type: llm
+          vision:
+            enabled: false
+        height: 88
+        id: "1781582929810"
+        position:
+          x: 2333
+          y: 0
+        positionAbsolute:
+          x: 2333
+          y: 0
         selected: false
-        title: LLM - กว่างโจว
-        type: llm
-        vision:
-          enabled: false
-      height: 88
-      id: '1781582929810'
-      position:
-        x: 2333
-        y: 0
-      positionAbsolute:
-        x: 2333
-        y: 0
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        cases:
-        - case_id: 'true'
-          conditions:
-          - comparison_operator: is
-            id: 7e6da508-f660-41f6-9e1b-db106e3d15dc
-            value: '[สถานะ:กว่างโจว]'
-            varType: string
-            variable_selector:
-            - '1781196562702'
-            - tag
-          id: 'true'
-          logical_operator: and
-        - case_id: b329b059-36e8-4768-86d8-59c29b145d0a
-          conditions:
-          - comparison_operator: is
-            id: af24e14e-782c-4589-a1bd-20ec8bdef8c0
-            value: '[สถานะ:เซี่ยงไฮ้]'
-            varType: string
-            variable_selector:
-            - '1781196562702'
-            - tag
-          id: b329b059-36e8-4768-86d8-59c29b145d0a
-          logical_operator: and
-        - case_id: 5972420b-0366-4766-b59c-b8afc596f489
-          conditions:
-          - comparison_operator: is
-            id: 15df73c0-0d2d-48be-a035-925c62eff2ea
-            value: '[สถานะ:เวยไห่]'
-            varType: string
-            variable_selector:
-            - '1781196562702'
-            - tag
-          id: 5972420b-0366-4766-b59c-b8afc596f489
-          logical_operator: and
-        - case_id: 22594e5b-8e04-4cca-8d59-3925a12c0033
-          conditions:
-          - comparison_operator: is
-            id: ea150a5f-8103-49cc-99f6-7c4448cd4661
-            value: '[สถานะ:ฮาร์บิน]'
-            varType: string
-            variable_selector:
-            - '1781196562702'
-            - tag
-          id: 22594e5b-8e04-4cca-8d59-3925a12c0033
-          logical_operator: and
-        - case_id: d6578fe9-a323-42cc-9dd3-0543f62c462b
-          conditions:
-          - comparison_operator: contains
-            id: 5a0d4a55-ea2d-4bf5-9bbc-85148a5197b4
-            value: '[ติดต่อแอดมิน]'
-            varType: string
-            variable_selector:
-            - '1781196562702'
-            - tag
-          id: d6578fe9-a323-42cc-9dd3-0543f62c462b
-          logical_operator: and
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: is
+                  id: 7e6da508-f660-41f6-9e1b-db106e3d15dc
+                  value: "[สถานะ:กว่างโจว]"
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: "true"
+              logical_operator: and
+            - case_id: b329b059-36e8-4768-86d8-59c29b145d0a
+              conditions:
+                - comparison_operator: is
+                  id: af24e14e-782c-4589-a1bd-20ec8bdef8c0
+                  value: "[สถานะ:เซี่ยงไฮ้]"
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: b329b059-36e8-4768-86d8-59c29b145d0a
+              logical_operator: and
+            - case_id: 5972420b-0366-4766-b59c-b8afc596f489
+              conditions:
+                - comparison_operator: is
+                  id: 15df73c0-0d2d-48be-a035-925c62eff2ea
+                  value: "[สถานะ:เวยไห่]"
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: 5972420b-0366-4766-b59c-b8afc596f489
+              logical_operator: and
+            - case_id: 22594e5b-8e04-4cca-8d59-3925a12c0033
+              conditions:
+                - comparison_operator: is
+                  id: ea150a5f-8103-49cc-99f6-7c4448cd4661
+                  value: "[สถานะ:ฮาร์บิน]"
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: 22594e5b-8e04-4cca-8d59-3925a12c0033
+              logical_operator: and
+            - case_id: d6578fe9-a323-42cc-9dd3-0543f62c462b
+              conditions:
+                - comparison_operator: contains
+                  id: 5a0d4a55-ea2d-4bf5-9bbc-85148a5197b4
+                  value: "[ติดต่อแอดมิน]"
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: d6578fe9-a323-42cc-9dd3-0543f62c462b
+              logical_operator: and
+          selected: true
+          title: IF/ELSE แยกเมือง
+          type: if-else
+        height: 558
+        id: "1781583119887"
+        position:
+          x: 1970.799196572515
+          y: 131.76112849162735
+        positionAbsolute:
+          x: 1970.799196572515
+          y: 131.76112849162735
         selected: true
-        title: IF/ELSE แยกเมือง
-        type: if-else
-      height: 558
-      id: '1781583119887'
-      position:
-        x: 1970.799196572515
-        y: 131.76112849162735
-      positionAbsolute:
-        x: 1970.799196572515
-        y: 131.76112849162735
-      selected: true
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        memory:
-          query_prompt_template: '{{#sys.query#}}
-
-
-            {{#sys.files#}}'
-          role_prefix:
-            assistant: ''
-            user: ''
-          window:
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
             enabled: true
-            size: 50
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: db0502ee-2d2d-41c2-94ae-dd688ccea9a9
-          role: system
-          text: "คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองเซี่ยงไฮ้ (Shanghai)\n\
-            ข้อมูลมหาวิทยาลัยในเซี่ยงไฮ้:\n1. East China University of Science and\
-            \ Technology (ECUST): อายุ 18-45 ปี, วีซ่า X2 สำหรับ 1 เทอม.\n   - หลักสูตรภาษาจีนปกติ:\
-            \ 9,800 หยวน (ค่าเรียน 1 เทอม) \n   - หลักสูตรภาษาจีนเร่งรัด: 14,000 หยวน\
-            \ (ต้องมี HSK3)\n   - หลักสูตรภาษาจีนธุรกิจ: 11,000 หยวน (ต้องมี HSK4)\n\
-            จุดเด่น: เมืองใหญ่นานาชาติ โอกาสทางธุรกิจเพียบ หอพักในมหาวิทยาลัย (แต่ต้องรีบจอง)\n\
-            \nขั้นตอนการทำงาน:\nอธิบายจุดเด่นของเซี่ยงไฮ้และ ECUST จากนั้นส่งโบชัวร์ค่าใช้จ่ายให้ลูกค้าพิจารณา\
-            \ และถามว่ามีข้อสงสัยใดๆ เพิ่มเติมไหมคะ\n\nข้อมูลเพิ่มเติม: {{#context#}}\n\
-            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า \"ค่ะ\" เสมอ"
-        selected: false
-        title: LLM - เซี่ยงไฮ้
-        type: llm
-        vision:
-          enabled: false
-      height: 88
-      id: '1781583264907'
-      position:
-        x: 2333
-        y: 183
-      positionAbsolute:
-        x: 2333
-        y: 183
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: fb37de2b-d32c-47d9-8896-cb2a4c931fb0
-          role: system
-          text: 'คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองเวยไห่ (Weihai)
-
-            ข้อมูลมหาวิทยาลัยในเวยไห่:
-
-            1. Shandong University, Weihai Campus (SDUW): อายุ 18-60 ปี, เมืองสงบ
-            ปลอดภัย อากาศดี ติดทะเล ค่าครองชีพถูก. วีซ่า X2 (1 เทอม) และ X1 (1 ปี)
-
-            ค่าใช้จ่าย 1 เทอม: รวมประมาณ 52,598-57,102 บาท
-
-            ค่าใช้จ่าย 1 ปี: รวมประมาณ 111,111-115,615 บาท
-
-
-            ขั้นตอนการทำงาน:
-
-            อธิบายความน่าอยู่ของเมืองเวยไห่ และส่งรายละเอียดคอร์ส 1 เทอม และ 1 ปี
-            ให้ลูกค้าพิจารณา และถามว่าสนใจระยะเวลาไหนคะ
-
-
-            ข้อมูลเพิ่มเติม: {{#context#}}
-
-            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ'
-        selected: false
-        title: LLM - เวยไห่
-        type: llm
-        vision:
-          enabled: false
-        memory: &id001
-          query_prompt_template: '{{#sys.query#}}
-
-
-            {{#sys.files#}}'
-          role_prefix:
-            assistant: ''
-            user: ''
-          window:
-            enabled: true
-            size: 50
-      height: 88
-      id: '1781583286537'
-      position:
-        x: 2333
-        y: 366
-      positionAbsolute:
-        x: 2333
-        y: 366
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: c6cce0cb-29e2-484f-bd9f-2fd640a4d8ab
-          role: system
-          text: 'คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองฮาร์บิน (Harbin)
-
-            ข้อมูลมหาวิทยาลัยในฮาร์บิน:
-
-            1. Harbin Engineering University (HEU): อายุ 18-45 ปี. มหาวิทยาลัยชั้นนำชื่อดังด้านวิศวกรรม
-            เมืองหนาวมีหิมะ ค่าครองชีพต่ำมาก
-
-            ค่าใช้จ่าย 1 เทอม: รวมประมาณ 43,680-49,140 บาท
-
-            ค่าใช้จ่าย 1 ปี: รวมประมาณ 84,175-89,863 บาท
-
-
-            ขั้นตอนการทำงาน:
-
-            อธิบายความคุ้มค่าและจุดเด่นของเมืองฮาร์บิน และส่งรายละเอียดคอร์ส 1 เทอม
-            และ 1 ปี ให้ลูกค้าพิจารณา พร้อมถามว่าสนใจเรียนกี่เทอมคะ
-
-
-            ข้อมูลเพิ่มเติม: {{#context#}}
-
-            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ'
-        selected: false
-        title: LLM - ฮาร์บิน
-        type: llm
-        vision:
-          enabled: false
-        memory: *id001
-      height: 88
-      id: '1781583306399'
-      position:
-        x: 2333
-        y: 549
-      positionAbsolute:
-        x: 2333
-        y: 549
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        model:
-          completion_params:
-            temperature: 0.7
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: 3d59e501-00ed-459b-9d09-e319213ed9de
-          role: system
-          text: 'คุณคือเจ้าหน้าที่ให้คำปรึกษา Dilion Education (ศูนย์แนะนำเรียนต่อที่ประเทศจีน)
-
-            หน้าที่: ตอบคำถามทั่วไปเกี่ยวกับการเรียนภาษาจีนในประเทศจีน อย่างสุภาพ
-            เป็นธรรมชาติ
-
-
-            เงื่อนไขการตอบ (ต้องทำตามอย่างเคร่งครัด):
-
-            1. ถ้าลูกค้าแค่ "ทักทาย" (เช่น สวัสดี) -> ให้ตอบแค่สวัสดี และถามว่าสนใจเรียนภาษาจีนที่เมืองไหนคะ
-            **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
-
-            2. ถ้าลูกค้าถาม "สถานที่" -> ให้แนะนำว่าเรามีมหาวิทยาลัยพาร์ทเนอร์ใน 4
-            เมือง (กว่างโจว, เซี่ยงไฮ้, เวยไห่, ฮาร์บิน) **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
-
-            3. ถ้าลูกค้าพิมพ์ว่า "ติดต่อแอดมิน / ขอเบอร์ / คุยกับคน" -> ค่อยแจ้งว่าสามารถติดต่อเจ้าหน้าที่
-            Dilion Education ได้ผ่านทาง Line Official Account ค่ะ
-
-
-            คำสั่ง: ห้ามให้เบอร์ติดต่อหรือ Line หากลูกค้ายังไม่ได้ร้องขอ
-
-            {{#context#}}
-
-            คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")'
-        selected: false
-        title: LLM - แอดมิน
-        type: llm
-        vision:
-          enabled: false
-        memory: *id001
-      height: 88
-      id: '1781583348593'
-      position:
-        x: 2318.3569818261085
-        y: 860.2810779664603
-      positionAbsolute:
-        x: 2318.3569818261085
-        y: 860.2810779664603
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781582929810.text#}}'
-        selected: false
-        title: Answer 26
-        type: answer
-        variables: []
-      height: 102
-      id: '1781586295912'
-      position:
-        x: 2676
-        y: 7.833333333333343
-      positionAbsolute:
-        x: 2676
-        y: 7.833333333333343
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781583264907.text#}}'
-        selected: false
-        title: Answer 27
-        type: answer
-        variables: []
-      height: 102
-      id: '1781586298185'
-      position:
-        x: 2676
-        y: 190.83333333333334
-      positionAbsolute:
-        x: 2676
-        y: 190.83333333333334
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781583286537.text#}}'
-        selected: false
-        title: Answer 28
-        type: answer
-        variables: []
-      height: 102
-      id: '1781586301980'
-      position:
-        x: 2676
-        y: 373.83333333333337
-      positionAbsolute:
-        x: 2676
-        y: 373.83333333333337
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781583306399.text#}}'
-        selected: false
-        title: Answer 29
-        type: answer
-        variables: []
-      height: 102
-      id: '1781586303846'
-      position:
-        x: 2676
-        y: 556.8333333333333
-      positionAbsolute:
-        x: 2676
-        y: 556.8333333333333
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781583348593.text#}}'
-        selected: false
-        title: Answer 31
-        type: answer
-        variables: []
-      height: 102
-      id: '1781586307536'
-      position:
-        x: 2676
-        y: 926.0025443320443
-      positionAbsolute:
-        x: 2676
-        y: 926.0025443320443
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        context:
-          enabled: true
-          variable_selector:
-          - '1780987487599'
-          - result
-        memory:
-          query_prompt_template: '{{#sys.query#}}
-
-
-            {{#sys.files#}}'
-          role_prefix:
-            assistant: ''
-            user: ''
-          window:
-            enabled: true
-            size: 50
-        model:
-          completion_params:
-            temperature: 0.3
-          mode: chat
-          name: gpt-4o-mini
-          provider: langgenius/openai/openai
-        prompt_template:
-        - id: da52cb23-621d-4700-9067-5a7c4cde9c6a
-          role: system
-          text: "คุณคือเจ้าหน้าที่รับสมัครนักศึกษาไปเรียนต่อที่ประเทศจีน (Dilion Education)\
-            \ มีหน้าที่คัดกรองข้อมูลผู้สมัครก่อนส่งไปยังผู้เชี่ยวชาญประจำเมือง\n\n\
-            กฎการทำงาน (ต้องทำตามลำดับ):\n1. ทักทายและสอบถามข้อมูลเบื้องต้น:\n   เมื่อลูกค้าทักมาครั้งแรก\
-            \ ให้พิมพ์ทักทายและขอข้อมูล 3 อย่างนี้:\n   - อายุเท่าไหร่\n   - มีพื้นฐานภาษาจีนหรือไม่\n\
-            \   - เคยไปเรียนที่ประเทศจีนมาก่อนไหมคะ\U0001F60A\n\n2. เสนอเมืองให้เลือก:\n\
-            \   เมื่อลูกค้าตอบข้อมูลครบแล้ว ให้พิมพ์เสนอเมืองดังนี้:\n   \"ทางพี่จะมีการทำความร่วมมือกับมหาวิทยาลัยในประเทศจีนดังนี้ค่ะ\
-            \ \n   • กว่างโจว\n   • เวยไห่\n   • เซี่ยงไห่\n   • ฮาร์บิน\n   สนใจเรียนเมืองไหนดีค่ะ\"\
-            \n\n3. การส่ง Tag (สำคัญมาก):\n   เมื่อลูกค้าตอบเลือกเมืองแล้ว ให้พิมพ์\
-            \ Tag ของเมืองนั้นออกมาเพียงบรรทัดเดียวเท่านั้น ห้ามพิมพ์ข้อความอื่นต่อท้าย:\n\
-            \   - ถ้าเลือกกว่างโจว: [สถานะ:กว่างโจว]\n   - ถ้าเลือกเซี่ยงไฮ้: [สถานะ:เซี่ยงไฮ้]\n\
-            \   - ถ้าเลือกเวยไห่: [สถานะ:เวยไห่]\n   - ถ้าเลือกฮาร์บิน: [สถานะ:ฮาร์บิน]\n\
-            \   - ถ้าลูกค้าพิมพ์ถามทั่วไปหรือขอคุยกับคน: [ติดต่อแอดมิน]\n\n\n5. ป้องกันการถามซ้ำ:\n\
-            \   - ตรวจสอบประวัติแชทก่อนเสมอ ว่าได้ถามและได้คำตอบครบทั้ง 3 อย่างแล้วหรือยัง\n\
-            \   - ถ้าได้ข้อมูลครบแล้ว ห้ามถามซ้ำเด็ดขาด ให้ดำเนินการเสนอเมืองให้เลือกทันที\n\
-            \   - หากลูกค้าเลือกเมืองไปแล้วในบทสนทนาก่อนหน้า ให้คาย Tag ของเมืองนั้นออกมาอีกครั้งได้เลย\
-            \ ห้ามถามข้อมูลซ้ำเด็ดขาด\n\n4. ข้อห้าม:\n   - ห้ามส่ง Tag ถ้ายังได้ข้อมูลไม่ครบหรือลูกค้ายังไม่เลือกเมือง\n\
-            \   - ห้ามแนะนำรายละเอียดคอร์ส ให้ส่ง Tag เพื่อให้ผู้เชี่ยวชาญรับช่วงต่อเท่านั้น\n\
-            \n{{#context#}}\nคำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า \"ค่ะ\" เสมอ (ห้ามใช้\
-            \ \"ครับ\")"
-        selected: false
-        title: LLM - พนักงานต้อนรับ (Router)
-        type: llm
-        vision:
-          enabled: false
-      height: 88
-      id: '1781587853209'
-      position:
-        x: 1070.240943160365
-        y: 261.4269308742841
-      positionAbsolute:
-        x: 1070.240943160365
-        y: 261.4269308742841
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        cases:
-        - case_id: 'true'
-          conditions:
-          - comparison_operator: empty
-            id: a3b4c5d6-e7f8-9a0b-1c2d-3e4f5a6b7c8d
-            value: ''
-            varType: string
             variable_selector:
-            - '1781196562702'
-            - tag
-          id: 'true'
-          logical_operator: and
+              - "1780987487599"
+              - result
+          memory:
+            query_prompt_template: |-
+              {{#sys.query#}}
+
+              {{#sys.files#}}
+            role_prefix:
+              assistant: ""
+              user: ""
+            window:
+              enabled: true
+              size: 50
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: db0502ee-2d2d-41c2-94ae-dd688ccea9a9
+              role: system
+              text: >
+                คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองเซี่ยงไฮ้ (Shanghai)
+
+                ข้อมูลมหาวิทยาลัยในเซี่ยงไฮ้:
+
+                1. East China University of Science and Technology (ECUST): อายุ
+                18-45 ปี, วีซ่า X2 สำหรับ 1 เทอม.
+                   - หลักสูตรภาษาจีนปกติ: 9,800 หยวน (ค่าเรียน 1 เทอม) 
+                   - หลักสูตรภาษาจีนเร่งรัด: 14,000 หยวน (ต้องมี HSK3)
+                   - หลักสูตรภาษาจีนธุรกิจ: 11,000 หยวน (ต้องมี HSK4)
+                จุดเด่น: เมืองใหญ่นานาชาติ โอกาสทางธุรกิจเพียบ
+                หอพักในมหาวิทยาลัย (แต่ต้องรีบจอง)
+
+
+                ขั้นตอนการทำงาน:
+
+                อธิบายจุดเด่นของเซี่ยงไฮ้และ ECUST
+                จากนั้นส่งโบชัวร์ค่าใช้จ่ายให้ลูกค้าพิจารณา โดยให้พิมพ์ลิงก์ Markdown ด้านล่างนี้ส่งให้ลูกค้าด้วย:
+                - คอร์สทั่วไป: ![คอร์สทั่วไป ECUST](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/shanghai/ecust-standard.jpg)
+                - คอร์สเร่งรัด: ![คอร์สเร่งรัด ECUST](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/shanghai/ecust-intensive.jpg)
+                - คอร์สธุรกิจ: ![คอร์สธุรกิจ ECUST](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/shanghai/ecust-business.jpg)
+                และถามว่ามีข้อสงสัยใดๆ เพิ่มเติมไหมคะ
+
+
+                ข้อมูลเพิ่มเติม: {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - เซี่ยงไฮ้
+          type: llm
+          vision:
+            enabled: false
+        height: 88
+        id: "1781583264907"
+        position:
+          x: 2333
+          y: 183
+        positionAbsolute:
+          x: 2333
+          y: 183
         selected: false
-        title: เช็คว่าเป็นคำถาม?
-        type: if-else
-      height: 124
-      id: '1781800000000'
-      position:
-        x: 1652.2500741016677
-        y: 100
-      positionAbsolute:
-        x: 1652.2500741016677
-        y: 100
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
-    - data:
-        answer: '{{#1781196562702.clean_text#}}'
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
+            enabled: true
+            variable_selector:
+              - "1780987487599"
+              - result
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: fb37de2b-d32c-47d9-8896-cb2a4c931fb0
+              role: system
+              text: >
+                คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองเวยไห่ (Weihai)
+
+                ข้อมูลมหาวิทยาลัยในเวยไห่:
+
+                1. Shandong University, Weihai Campus (SDUW): อายุ 18-60 ปี,
+                เมืองสงบ ปลอดภัย อากาศดี ติดทะเล ค่าครองชีพถูก. วีซ่า X2 (1
+                เทอม) และ X1 (1 ปี)
+
+                ค่าใช้จ่าย 1 เทอม: รวมประมาณ 52,598-57,102 บาท
+
+                ค่าใช้จ่าย 1 ปี: รวมประมาณ 111,111-115,615 บาท
+
+
+                ขั้นตอนการทำงาน:
+
+                อธิบายความน่าอยู่ของเมืองเวยไห่ และส่งรายละเอียดคอร์ส 1 เทอม และ
+                1 ปี ให้ลูกค้าพิจารณา (โดยใช้ลิงก์ Markdown รูปภาพด้านล่างนี้) และถามว่าสนใจระยะเวลาไหนคะ:
+                - 1 เทอม: ![รายละเอียดเวยไห่ 1 เทอม](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/weihai/sduw-1-term.jpg)
+                - 1 ปี: ![รายละเอียดเวยไห่ 1 ปี](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/weihai/sduw-1-year.jpg)
+
+
+                ข้อมูลเพิ่มเติม: {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - เวยไห่
+          type: llm
+          vision:
+            enabled: false
+          memory: &a1
+            query_prompt_template: |-
+              {{#sys.query#}}
+
+              {{#sys.files#}}
+            role_prefix:
+              assistant: ""
+              user: ""
+            window:
+              enabled: true
+              size: 50
+        height: 88
+        id: "1781583286537"
+        position:
+          x: 2333
+          y: 366
+        positionAbsolute:
+          x: 2333
+          y: 366
         selected: false
-        title: Answer - คำถาม
-        type: answer
-        variables: []
-      height: 102
-      id: '1781800000001'
-      position:
-        x: 1930.2268530155334
-        y: -25.224174092628132
-      positionAbsolute:
-        x: 1930.2268530155334
-        y: -25.224174092628132
-      selected: false
-      sourcePosition: right
-      targetPosition: left
-      type: custom
-      width: 242
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
+            enabled: true
+            variable_selector:
+              - "1780987487599"
+              - result
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: c6cce0cb-29e2-484f-bd9f-2fd640a4d8ab
+              role: system
+              text: >
+                คุณคือผู้เชี่ยวชาญหลักสูตรเรียนภาษาจีน เมืองฮาร์บิน (Harbin)
+
+                ข้อมูลมหาวิทยาลัยในฮาร์บิน:
+
+                1. Harbin Engineering University (HEU): อายุ 18-45 ปี.
+                มหาวิทยาลัยชั้นนำชื่อดังด้านวิศวกรรม เมืองหนาวมีหิมะ
+                ค่าครองชีพต่ำมาก
+
+                ค่าใช้จ่าย 1 เทอม: รวมประมาณ 43,680-49,140 บาท
+
+                ค่าใช้จ่าย 1 ปี: รวมประมาณ 84,175-89,863 บาท
+
+
+                ขั้นตอนการทำงาน:
+
+                อธิบายความคุ้มค่าและจุดเด่นของเมืองฮาร์บิน และส่งรายละเอียดคอร์ส
+                1 เทอม และ 1 ปี ให้ลูกค้าพิจารณา (โดยใช้ลิงก์ Markdown รูปภาพด้านล่างนี้) พร้อมถามว่าสนใจเรียนกี่เทอมคะ:
+                - 1 เทอม: ![รายละเอียดฮาร์บิน 1 เทอม](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/harbin/heu-1-term.jpg)
+                - 1 ปี: ![รายละเอียดฮาร์บิน 1 ปี](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/harbin/heu-1-year.jpg)
+
+
+                ข้อมูลเพิ่มเติม: {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - ฮาร์บิน
+          type: llm
+          vision:
+            enabled: false
+          memory: *a1
+        height: 88
+        id: "1781583306399"
+        position:
+          x: 2333
+          y: 549
+        positionAbsolute:
+          x: 2333
+          y: 549
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
+            enabled: true
+            variable_selector:
+              - "1780987487599"
+              - result
+          model:
+            completion_params:
+              temperature: 0.7
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: 3d59e501-00ed-459b-9d09-e319213ed9de
+              role: system
+              text: >
+                คุณคือเจ้าหน้าที่ให้คำปรึกษา Dilion Education
+                (ศูนย์แนะนำเรียนต่อที่ประเทศจีน)
+
+                หน้าที่: ตอบคำถามทั่วไปเกี่ยวกับการเรียนภาษาจีนในประเทศจีน
+                อย่างสุภาพ เป็นธรรมชาติ
+
+
+                เงื่อนไขการตอบ (ต้องทำตามอย่างเคร่งครัด):
+
+                1. ถ้าลูกค้าแค่ "ทักทาย" (เช่น สวัสดี) -> ให้ตอบแค่สวัสดี
+                และถามว่าสนใจเรียนภาษาจีนที่เมืองไหนคะ
+                **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
+
+                2. ถ้าลูกค้าถาม "สถานที่" ->
+                ให้แนะนำว่าเรามีมหาวิทยาลัยพาร์ทเนอร์ใน 4 เมือง (กว่างโจว,
+                เซี่ยงไฮ้, เวยไห่, ฮาร์บิน) **(ห้ามพิมพ์เบอร์โทรติดต่อเด็ดขาด)**
+
+                3. ถ้าลูกค้าพิมพ์ว่า "ติดต่อแอดมิน / ขอเบอร์ / คุยกับคน" ->
+                ค่อยแจ้งว่าสามารถติดต่อเจ้าหน้าที่ Dilion Education ได้ผ่านทาง
+                Line Official Account ค่ะ
+
+
+                คำสั่ง: ห้ามให้เบอร์ติดต่อหรือ Line หากลูกค้ายังไม่ได้ร้องขอ
+
+                {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - แอดมิน
+          type: llm
+          vision:
+            enabled: false
+          memory: *a1
+        height: 88
+        id: "1781583348593"
+        position:
+          x: 2318.3569818261085
+          y: 860.2810779664603
+        positionAbsolute:
+          x: 2318.3569818261085
+          y: 860.2810779664603
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781582929810.text#}}"
+          selected: false
+          title: Answer 26
+          type: answer
+          variables: []
+        height: 102
+        id: "1781586295912"
+        position:
+          x: 2676
+          y: 7.833333333333343
+        positionAbsolute:
+          x: 2676
+          y: 7.833333333333343
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781583264907.text#}}"
+          selected: false
+          title: Answer 27
+          type: answer
+          variables: []
+        height: 102
+        id: "1781586298185"
+        position:
+          x: 2676
+          y: 190.83333333333334
+        positionAbsolute:
+          x: 2676
+          y: 190.83333333333334
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781583286537.text#}}"
+          selected: false
+          title: Answer 28
+          type: answer
+          variables: []
+        height: 102
+        id: "1781586301980"
+        position:
+          x: 2676
+          y: 373.83333333333337
+        positionAbsolute:
+          x: 2676
+          y: 373.83333333333337
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781583306399.text#}}"
+          selected: false
+          title: Answer 29
+          type: answer
+          variables: []
+        height: 102
+        id: "1781586303846"
+        position:
+          x: 2676
+          y: 556.8333333333333
+        positionAbsolute:
+          x: 2676
+          y: 556.8333333333333
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781583348593.text#}}"
+          selected: false
+          title: Answer 31
+          type: answer
+          variables: []
+        height: 102
+        id: "1781586307536"
+        position:
+          x: 2676
+          y: 926.0025443320443
+        positionAbsolute:
+          x: 2676
+          y: 926.0025443320443
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          context:
+            enabled: true
+            variable_selector:
+              - "1780987487599"
+              - result
+          memory:
+            query_prompt_template: |-
+              {{#sys.query#}}
+
+              {{#sys.files#}}
+            role_prefix:
+              assistant: ""
+              user: ""
+            window:
+              enabled: true
+              size: 50
+          model:
+            completion_params:
+              temperature: 0.3
+            mode: chat
+            name: gpt-4o-mini
+            provider: langgenius/openai/openai
+          prompt_template:
+            - id: da52cb23-621d-4700-9067-5a7c4cde9c6a
+              role: system
+              text: >
+                คุณคือเจ้าหน้าที่รับสมัครนักศึกษาไปเรียนต่อที่ประเทศจีน (Dilion
+                Education)
+                มีหน้าที่คัดกรองข้อมูลผู้สมัครก่อนส่งไปยังผู้เชี่ยวชาญประจำเมือง
+
+
+                กฎการทำงาน (ต้องทำตามลำดับ):
+
+                1. ทักทายและสอบถามข้อมูลเบื้องต้น:
+                   เมื่อลูกค้าทักมาครั้งแรก ให้พิมพ์ทักทายและขอข้อมูล 3 อย่างนี้:
+                   - อายุเท่าไหร่
+                   - มีพื้นฐานภาษาจีนหรือไม่
+                   - เคยไปเรียนที่ประเทศจีนมาก่อนไหมคะ😊
+
+                2. เสนอเมืองให้เลือก:
+                   เมื่อลูกค้าตอบข้อมูลครบแล้ว ให้พิมพ์เสนอเมืองดังนี้:
+                   "ทางพี่จะมีการทำความร่วมมือกับมหาวิทยาลัยในประเทศจีนดังนี้ค่ะ 
+                   • กว่างโจว
+                   • เวยไห่
+                   • เซี่ยงไห่
+                   • ฮาร์บิน
+                   สนใจเรียนเมืองไหนดีค่ะ"
+
+                3. การส่ง Tag (สำคัญมาก):
+                   เมื่อลูกค้าตอบเลือกเมืองแล้ว ให้พิมพ์ Tag ของเมืองนั้นออกมาเพียงบรรทัดเดียวเท่านั้น ห้ามพิมพ์ข้อความอื่นต่อท้าย:
+                   - ถ้าเลือกกว่างโจว: [สถานะ:กว่างโจว]
+                   - ถ้าเลือกเซี่ยงไฮ้: [สถานะ:เซี่ยงไฮ้]
+                   - ถ้าเลือกเวยไห่: [สถานะ:เวยไห่]
+                   - ถ้าเลือกฮาร์บิน: [สถานะ:ฮาร์บิน]
+                   - ถ้าลูกค้าพิมพ์ถามทั่วไปหรือขอคุยกับคน: [ติดต่อแอดมิน]
+
+
+                5. ป้องกันการถามซ้ำ:
+                   - ตรวจสอบประวัติแชทก่อนเสมอ ว่าได้ถามและได้คำตอบครบทั้ง 3 อย่างแล้วหรือยัง
+                   - ถ้าได้ข้อมูลครบแล้ว ห้ามถามซ้ำเด็ดขาด ให้ดำเนินการเสนอเมืองให้เลือกทันที
+                   - หากลูกค้าเลือกเมืองไปแล้วในบทสนทนาก่อนหน้า ให้คาย Tag ของเมืองนั้นออกมาอีกครั้งได้เลย ห้ามถามข้อมูลซ้ำเด็ดขาด
+
+                4. ข้อห้าม:
+                   - ห้ามส่ง Tag ถ้ายังได้ข้อมูลไม่ครบหรือลูกค้ายังไม่เลือกเมือง
+                   - ห้ามแนะนำรายละเอียดคอร์ส ให้ส่ง Tag เพื่อให้ผู้เชี่ยวชาญรับช่วงต่อเท่านั้น
+
+                {{#context#}}
+
+                คำสั่งเพิ่มเติม: ต้องใช้คำลงท้ายว่า "ค่ะ" เสมอ (ห้ามใช้ "ครับ")
+
+
+                ### การจดจำบริบทการสนทนา (Context Memory)
+
+                - คุณต้องจดจำข้อมูลประวัติ สาขาที่สนใจ
+                และชื่อที่ลูกค้าเคยพิมพ์บอกไว้ในข้อความก่อนหน้าเสมอ
+
+                - หากลูกค้าสอบถามถึงข้อมูลส่วนตัวที่เคยบอกไปแล้ว (เช่น
+                "ผมชื่ออะไร", "เมื่อกี้บอกว่าจบอะไร")
+                ให้คุณดึงข้อมูลจากประวัติแชทมาตอบอย่างเป็นธรรมชาติ
+                ห้ามตอบว่าไม่ทราบหรือขอข้อมูลใหม่เด็ดขาด
+
+                - ให้ถือว่าประวัติการคุยเป็นข้อมูลสำคัญเทียบเท่ากับ Knowledge
+                Base
+          selected: false
+          title: LLM - พนักงานต้อนรับ (Router)
+          type: llm
+          vision:
+            enabled: false
+        height: 88
+        id: "1781587853209"
+        position:
+          x: 1070.240943160365
+          y: 261.4269308742841
+        positionAbsolute:
+          x: 1070.240943160365
+          y: 261.4269308742841
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          cases:
+            - case_id: "true"
+              conditions:
+                - comparison_operator: empty
+                  id: a3b4c5d6-e7f8-9a0b-1c2d-3e4f5a6b7c8d
+                  value: ""
+                  varType: string
+                  variable_selector:
+                    - "1781196562702"
+                    - tag
+              id: "true"
+              logical_operator: and
+          selected: false
+          title: เช็คว่าเป็นคำถาม?
+          type: if-else
+        height: 124
+        id: "1781800000000"
+        position:
+          x: 1652.2500741016677
+          y: 100
+        positionAbsolute:
+          x: 1652.2500741016677
+          y: 100
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
+      - data:
+          answer: "{{#1781196562702.clean_text#}}"
+          selected: false
+          title: Answer - คำถาม
+          type: answer
+          variables: []
+        height: 102
+        id: "1781800000001"
+        position:
+          x: 1930.2268530155334
+          y: -25.224174092628132
+        positionAbsolute:
+          x: 1930.2268530155334
+          y: -25.224174092628132
+        selected: false
+        sourcePosition: right
+        targetPosition: left
+        type: custom
+        width: 242
     viewport:
       x: -491.99113198317264
       y: 130.45651162065604

@@ -223,7 +223,28 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
     const userKey = `${platform}:${userId}`;
     const conversationId = await getConversationId(userKey);
 
-    const promptText = tenantConfig && tenantConfig.personaPrefix ? `${tenantConfig.personaPrefix}${userMessage}` : userMessage;
+    const pageType = tenantConfig ? tenantConfig.pageType || 'general' : 'general';
+    
+    // Inject page context as a prefix in the query itself
+    // This is more reliable than Dify input variables
+    let promptText = userMessage;
+    
+    // --- Routing ชินวัตร ---
+    if (pageType === 'nursing') {
+        promptText = `[ช่องทาง: เพจพยาบาล — ให้ตอบเฉพาะหลักสูตรพยาบาลและผู้ช่วยพยาบาลเท่านั้น]\n${userMessage}`;
+    } else if (pageType === 'general') {
+        promptText = `[ช่องทาง: เพจทั่วไป — ห้ามพูดถึงหลักสูตรพยาบาล]\n${userMessage}`;
+    } 
+    // --- Routing จีน ---
+    else if (pageType === 'guangzhou') {
+        promptText = `[System Note: ลูกค้าทักมาจาก "เพจกว่างโจว" (ให้ข้ามขั้นที่ 2 ไปขั้น 3 ทันที)\nคำสั่งด่วน: ให้นำเสนอเฉพาะคอร์สของ "กว่างโจว" ที่เหมาะสมกับ "พื้นฐานภาษาและอายุ" ของลูกค้าเท่านั้น! (คอร์สไหนไม่ตรงเงื่อนไขห้ามเสนอเด็ดขาด)]\nคำพูดลูกค้า: ${userMessage}`;
+    } else if (pageType === 'shanghai') {
+        promptText = `[System Note: ลูกค้าทักมาจาก "เพจเซี่ยงไฮ้" (ให้ข้ามขั้นที่ 2 ไปขั้น 3 ทันที)\nคำสั่งด่วน: ให้นำเสนอเฉพาะคอร์สของ "เซี่ยงไฮ้" ที่เหมาะสมกับ "พื้นฐานภาษาและอายุ" ของลูกค้าเท่านั้น! (คอร์สไหนไม่ตรงเงื่อนไขห้ามเสนอเด็ดขาด)]\nคำพูดลูกค้า: ${userMessage}`;
+    } else if (pageType === 'shandong') {
+        promptText = `[System Note: ลูกค้าทักมาจาก "เพจชานตง" (ให้ข้ามขั้นที่ 2 ไปขั้น 3 ทันที)\nคำสั่งด่วน: ให้นำเสนอเฉพาะคอร์สของ "ชานตง" ที่เหมาะสมกับ "พื้นฐานภาษาและอายุ" ของลูกค้าเท่านั้น! (คอร์สไหนไม่ตรงเงื่อนไขห้ามเสนอเด็ดขาด)]\nคำพูดลูกค้า: ${userMessage}`;
+    }
+    // pageType === 'china_all' (เพจ 5) หรือ 'combined' (LINE) → ส่งข้อความตามปกติ ไม่ต้อง prefix เพื่อให้ตอบได้ทุกเมือง
+
     const apiKey = tenantConfig ? tenantConfig.difyApiKey : process.env.DIFY_API_KEY;
 
     try {
@@ -543,14 +564,13 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                 continue;
             }
 
-            if (webhookEvent.message && !webhookEvent.message.is_echo) {
-                const hasText = !!webhookEvent.message.text;
-                const hasAttachment = webhookEvent.message.attachments && webhookEvent.message.attachments.length > 0;
-
-                if (!hasText && !hasAttachment) continue;
-
+            // 2. กรณีลูกค้าส่งข้อความปกติ หรือกดปุ่ม Postback จากโฆษณา/Get Started
+            else if ((webhookEvent.message && !webhookEvent.message.is_echo) || (webhookEvent.postback && webhookEvent.postback.payload)) {
                 const senderId = webhookEvent.sender.id;
-                const text = hasText ? webhookEvent.message.text : '[Sent an attachment]';
+                
+                // ดึงข้อความออกมา (ถ้าเป็นการกดปุ่มให้เอา title หรือ payload มาใช้)
+                const text = (webhookEvent.message && webhookEvent.message.text) ? webhookEvent.message.text : (webhookEvent.postback && (webhookEvent.postback.title || webhookEvent.postback.payload)) ? (webhookEvent.postback.title || webhookEvent.postback.payload) : '[Attachment]';
+                const hasText = !!text;
                 
                 trackUser('meta', senderId, text);
 
@@ -576,10 +596,13 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                 if (referral) {
                     console.log(`[META] 🎯 ข้อความนี้มาจากโฆษณา ref=${referral.ref || referral.ad_id || 'unknown'}`);
                 }
-                const sanitizedText = sanitizeInput(webhookEvent.message.text);
+                
+                const sanitizedText = sanitizeInput(text || '');
+                const hasAttachment = webhookEvent.message && webhookEvent.message.attachments && webhookEvent.message.attachments.length > 0;
+                
                 handleIncoming({
                     userId: senderId,
-                    messageId: webhookEvent.message.mid,
+                    messageId: (webhookEvent.message && webhookEvent.message.mid) ? webhookEvent.message.mid : `pb-${Date.now()}`,
                     text: sanitizedText,
                     meta: {},
                     processFn: async (userId, combinedText) => {

@@ -25,7 +25,7 @@ function parseSegments(text) {
   // เกราะชั้นสอง: ลบ Tag รหัสสถานะที่อาจหลุดมาจาก Dify (ปกติ Code Node ใน Dify ลบให้แล้ว
   // แต่ถ้า Dify พลาด อันนี้กันไม่ให้ Tag หลุดถึงลูกค้าทั้ง FB และ LINE)
   // ทนช่องว่างภายในวงเล็บ เช่น [ สถานะ: บัญชี ]
-  const TAG_REGEX = /\[\s*(?:รอข้อมูล|ส่งฟอร์ม|จบการสนทนา|ติดต่อแอดมิน|สถานะ\s*:\s*(?:บัญชี|นิติ|รัฐประศาสนศาสตร์|ป\.โท|ป\.เอก|ป\.บัณฑิต))\s*\]/g;
+  const TAG_REGEX = /\[\s*(?:รอข้อมูล|ส่งฟอร์ม|จบการสนทนา|ติดต่อแอดมิน|สถานะ\s*:.*)\s*\]/g;
   cleaned = cleaned.replace(TAG_REGEX, '').trim();
 
   if (!cleaned) return segments;
@@ -70,6 +70,7 @@ async function fbSendText(recipientId, text, token) {
     console.error('[FB Send Error] Attempted to send empty text message');
     return;
   }
+  console.log(`[META] 📤 กำลังส่งข้อความ: "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}"`);
   await axios.post(metaUrl(token), {
     recipient: { id: recipientId },
     message: { text },
@@ -81,6 +82,7 @@ async function fbSendImage(recipientId, imageUrl, token) {
     console.error('[FB Send Error] Attempted to send empty image URL');
     return;
   }
+  console.log(`[META] 🖼️ กำลังส่งรูปภาพ (Image Attachment): ${imageUrl}`);
   await axios.post(metaUrl(token), {
     recipient: { id: recipientId },
     message: {

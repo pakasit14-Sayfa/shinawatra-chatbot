@@ -1,23 +1,24 @@
 const axios = require('axios');
+const crypto = require('crypto');
 
-async function testWebhook() {
-  try {
-    const res = await axios.post('http://127.0.0.1:3001/webhook/line/2', {
-      destination: "U5edd6a4750eafee3f3312621dee29ec8",
-      events: [{
-        type: "message",
-        message: { type: "text", id: "619097851888664651", text: "สวัสดีครับทดสอบ" },
-        webhookEventId: "01KVF1A177K5Q0CW7SCYN6G6ZC",
-        deliveryContext: { isRedelivery: false },
-        timestamp: Date.now(),
-        source: { type: "user", userId: "U42f450325b1c69a093d38c6f003b83d9" },
-        replyToken: "ca0ebb73a9144ae5908b54705f4c52f7",
-        mode: "active"
-      }]
-    });
-    console.log("Status:", res.status);
-  } catch (e) {
-    console.error(e.message);
-  }
-}
-testWebhook();
+const secret = 'your_line_secret_1_here';
+const body = JSON.stringify({
+    events: [
+        {
+            type: 'message',
+            source: { userId: 'U123456789' },
+            message: { type: 'text', text: 'สวัสดีครับ', id: 'msg124' },
+            replyToken: 'token123'
+        }
+    ]
+});
+
+const signature = crypto.createHmac('SHA256', secret).update(body).digest('base64');
+
+axios.post('http://localhost:3005/webhook/line/1', body, {
+    headers: {
+        'Content-Type': 'application/json',
+        'x-line-signature': signature
+    }
+}).then(res => console.log('Webhook Response:', res.status))
+  .catch(err => console.error('Webhook Error:', err.response ? err.response.data : err.message));
