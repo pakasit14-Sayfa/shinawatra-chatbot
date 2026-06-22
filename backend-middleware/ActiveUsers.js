@@ -33,10 +33,10 @@ loadUsers();
 /**
  * บันทึกว่ามีลูกค้าทักมา (เรียกตอนมี Webhook เข้า)
  */
-function trackUser(platform, userId, text) {
+function trackUser(platform, userId, text, accessToken) {
     const key = `${platform}:${userId}`;
     const existing = activeUsers[key] || {};
-    
+
     activeUsers[key] = {
         ...existing,
         platform,
@@ -47,7 +47,7 @@ function trackUser(platform, userId, text) {
 
     // ดึงชื่อถ้ายังไม่มี
     if (!activeUsers[key].displayName) {
-        fetchDisplayName(platform, userId).then(name => {
+        fetchDisplayName(platform, userId, accessToken).then(name => {
             if (name && activeUsers[key]) {
                 activeUsers[key].displayName = name;
                 saveUsers();
@@ -77,15 +77,16 @@ function getActiveUsers() {
     return Object.values(activeUsers).sort((a, b) => b.lastActive - a.lastActive);
 }
 
-async function fetchDisplayName(platform, userId) {
+async function fetchDisplayName(platform, userId, accessToken) {
+    if (!accessToken) return null;
     try {
         if (platform === 'line') {
             const res = await axios.get(`https://api.line.me/v2/bot/profile/${userId}`, {
-                headers: { 'Authorization': `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}` }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
             return res.data.displayName;
         } else if (platform === 'meta') {
-            const res = await axios.get(`https://graph.facebook.com/${userId}?fields=first_name,last_name,name&access_token=${process.env.FB_PAGE_TOKEN}`);
+            const res = await axios.get(`https://graph.facebook.com/${userId}?fields=first_name,last_name,name&access_token=${accessToken}`);
             const data = res.data;
             if (data.name) return data.name;
             if (data.first_name && data.last_name) return `${data.first_name} ${data.last_name}`;

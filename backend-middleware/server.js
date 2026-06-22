@@ -214,6 +214,17 @@ async function setConversationId(userKey, conversationId) {
   }
 }
 
+async function clearConversationId(userKey) {
+  delete conversations[userKey];
+  if (redisReady) {
+    try {
+      await redisClient.del(`conv:${userKey}`);
+    } catch (err) {
+      console.error('[Redis Del Error]', err.message);
+    }
+  }
+}
+
 /**
  * ---------------------------------------------------------
  * DIFY API: ส่งข้อความไปถาม Dify และรับคำตอบ
@@ -247,23 +258,39 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
 
     const apiKey = tenantConfig ? tenantConfig.difyApiKey : process.env.DIFY_API_KEY;
 
-    try {
-        const response = await axios.post(
-            DIFY_API_URL,
-            {
-                inputs: {},
-                query: promptText,
-                response_mode: 'blocking',
-                conversation_id: conversationId,
-                user: userId
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
-                }
+    const callDify = (convId) => axios.post(
+        DIFY_API_URL,
+        {
+            inputs: {},
+            query: promptText,
+            response_mode: 'blocking',
+            conversation_id: convId,
+            user: userId
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
             }
-        );
+        }
+    );
+
+    try {
+        let response;
+        try {
+            response = await callDify(conversationId);
+        } catch (error) {
+            // conversation_id เก่าอาจถูกลบไปแล้วฝั่ง Dify (เช่น แก้/publish app ใหม่)
+            // เคลียร์ทิ้งแล้วลองเริ่มบทสนทนาใหม่อีกครั้งเดียว ไม่งั้นลูกค้าจะไม่ได้รับคำตอบเลย
+            const isConversationNotFound = error.response?.status === 404 && error.response?.data?.code === 'not_found';
+            if (isConversationNotFound && conversationId) {
+                console.warn(`[Dify] conversation_id เก่าใช้ไม่ได้แล้ว (${conversationId}) เริ่มบทสนทนาใหม่ให้ ${userKey}`);
+                await clearConversationId(userKey);
+                response = await callDify('');
+            } else {
+                throw error;
+            }
+        }
 
         const data = response.data;
 
@@ -339,7 +366,7 @@ app.post('/webhook/line/:campus', limiter, async (req, res) => {
 
             let text = isText ? event.message.text : '[Sent an image]';
 
-            trackUser('line', lineUserId, text);
+            trackUser('line', lineUserId, text, tenantConfig.lineAccessToken);
 
             // คำสั่งปลดล็อก (แอดมินพิมพ์ "เปิดบอท" ในห้องลูกค้า)
             if (isText && isUnlockCommand(text)) {
@@ -572,7 +599,7 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                 const text = (webhookEvent.message && webhookEvent.message.text) ? webhookEvent.message.text : (webhookEvent.postback && (webhookEvent.postback.title || webhookEvent.postback.payload)) ? (webhookEvent.postback.title || webhookEvent.postback.payload) : '[Attachment]';
                 const hasText = !!text;
                 
-                trackUser('meta', senderId, text);
+                trackUser('meta', senderId, text, tenantConfig.fbAccessToken);
 
                 // ===== คำสั่งปลดล็อก: แอดมินพิมพ์ "เปิดบอท" =====
                 if (hasText && isUnlockCommand(text)) {
