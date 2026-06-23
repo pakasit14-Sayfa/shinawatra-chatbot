@@ -75,6 +75,24 @@ async function logChatMessage(sessionId, senderType, message, rawTag = null) {
 }
 
 /**
+ * เช็คว่าบอทเคยส่งลิงก์แบบฟอร์มสมัครให้ลูกค้าคนนี้ในแชทนี้ไปแล้วหรือยัง
+ * ใช้แยกแยะว่ารูปที่ลูกค้าส่งมาทีหลังคือ "สลิป/เอกสารสมัคร" จริง ไม่ใช่รูปสุ่มที่ส่งมาก่อนรู้จักฟอร์ม
+ */
+async function hasSentFormLink(sessionId) {
+    const found = await prisma.chatLog.findFirst({
+        where: {
+            session_id: sessionId,
+            sender_type: 'bot',
+            OR: [
+                { message: { contains: 'forms.gle' } },
+                { message: { contains: 'docs.google.com/forms' } }
+            ]
+        }
+    });
+    return !!found;
+}
+
+/**
  * บันทึกรูปภาพ/ไฟล์ (Media Storage)
  */
 async function logAttachment(logId, attachmentType, storageUrl, fileName = null, fileSize = null) {
@@ -94,5 +112,6 @@ module.exports = {
     getOrCreateUser,
     getOrCreateSession,
     logChatMessage,
-    logAttachment
+    logAttachment,
+    hasSentFormLink
 };

@@ -75,6 +75,47 @@ app.post('/api/admin/toggle', authMiddleware, async (req, res) => {
     res.sendStatus(200);
 });
 
+// ----- เปิด/ปิดบอท + ตั้งเวลาทำงาน รายแคมปัส (Project_1/2/3) -----
+const ALL_CAMPUSES = ['Project_1', 'Project_2', 'Project_3'];
+
+app.get('/api/admin/bot-control', authMiddleware, async (req, res) => {
+    const result = {};
+    for (const campus of ALL_CAMPUSES) {
+        result[campus] = await getBotControl(campus);
+    }
+    res.json(result);
+});
+
+app.post('/api/admin/bot-control', authMiddleware, async (req, res) => {
+    try {
+        const { campus, enabled, scheduleEnabled, startTime, endTime } = req.body;
+        if (!ALL_CAMPUSES.includes(campus)) {
+            return res.status(400).json({ error: 'campus ต้องเป็น Project_1, Project_2 หรือ Project_3' });
+        }
+        const data = {};
+        if (typeof enabled === 'boolean') data.enabled = enabled;
+        if (typeof scheduleEnabled === 'boolean') data.scheduleEnabled = scheduleEnabled;
+        if (startTime) data.startTime = startTime;
+        if (endTime) data.endTime = endTime;
+        const updated = await setBotControl(campus, data);
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ----- ลบสถานะ "เคยสมัครแล้ว" ของลูกค้า (เผื่อแอดมินตั้งผิด/อยากให้บอทคุยกับลูกค้าคนนี้ใหม่) -----
+app.post('/api/admin/clear-applied', authMiddleware, async (req, res) => {
+    try {
+        const { platform, userId } = req.body;
+        if (!platform || !userId) return res.status(400).json({ error: 'ต้องระบุ platform และ userId' });
+        if (redisReady) await redisClient.del(`${APPLIED_PREFIX}${platform}:${userId}`);
+        res.sendStatus(200);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Admin sends message to user
 app.post('/api/admin/send-message', authMiddleware, async (req, res) => {
     try {
@@ -194,8 +235,11 @@ const CONVERSATION_TTL_SECONDS = 60 * 60 * 24 * 30; // เก็บ 30 วัน
 async function getConversationId(userKey) {
   if (redisReady) {
     try {
+      // Redis คือ source of truth ตอนพร้อมใช้งาน - ถ้า GET สำเร็จ (แม้ได้ค่าว่าง)
+      // ห้าม fallback ไปใช้ memory cache ในตัว process เด็ดขาด เพราะอาจเป็นค่าเก่าที่ค้างอยู่
+      // (เคยมีบั๊กจริง: ลบ conversation_id ใน Redis จาก process อื่นแล้ว แต่ server ตัวนี้ยังตอบด้วยค่าเก่าจาก memory)
       const value = await redisClient.get(`conv:${userKey}`);
-      if (value) return value;
+      return value || '';
     } catch (err) {
       console.error('[Redis Get Error]', err.message);
     }
@@ -230,8 +274,201 @@ async function clearConversationId(userKey) {
  * DIFY API: ส่งข้อความไปถาม Dify และรับคำตอบ
  * ---------------------------------------------------------
  */
+// คำสั่งที่ลูกค้าพิมพ์เพื่อขอ "เริ่มแชทใหม่" - ต้องล้าง conversation_id ของจริงใน Redis/Dify ทันที
+// ห้ามหวังให้ Dify ตีความคำนี้เอาเอง เพราะ memory ของ Dify ยังเก็บ history เดิมไว้อยู่ดี
+const RESET_COMMANDS = ['เริ่มใหม่', 'เริ่มต้นใหม่', 'ล้างแชท', 'ล้างแชต', 'ล้างแชส', 'reset', 'restart', 'clear'];
+
+function isResetCommand(text) {
+    const trimmed = String(text || '').trim();
+    return RESET_COMMANDS.some(cmd => trimmed === cmd || trimmed.startsWith(cmd + ' ') || trimmed.startsWith(cmd + 'ๆ'));
+}
+
+/**
+ * ---------------------------------------------------------
+ * n8n BRAIN: ระบบสำรองที่แทน Dify ได้ทีละ Brain
+ * เปิดใช้ด้วย env USE_N8N_BRAIN=true (ปิดอยู่โดย default - Dify ยังเป็นระบบหลักที่ใช้จริง)
+ * ---------------------------------------------------------
+ */
+const N8N_BASE_URL = process.env.N8N_BASE_URL || 'http://localhost:5678';
+const USE_N8N_BRAIN = String(process.env.USE_N8N_BRAIN || 'false').toLowerCase() === 'true';
+// เปิด n8n เฉพาะบาง campus ได้ทีละตัว เช่น "Project_1" หรือ "Project_1,Project_2"
+// ปล่อยว่าง = ไม่มี campus ไหนใช้ n8n (เว้นแต่ USE_N8N_BRAIN=true ที่เปิดทั้งหมด)
+const N8N_BRAIN_CAMPUSES = String(process.env.N8N_BRAIN_CAMPUSES || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+function shouldUseN8n(tenantConfig) {
+    if (USE_N8N_BRAIN) return true;
+    const campus = tenantConfig ? tenantConfig.campus : undefined;
+    return campus && N8N_BRAIN_CAMPUSES.includes(campus);
+}
+
+// แปลง pageType ของเรา -> ชื่อ webhook + payload ที่ n8n แต่ละ Brain ต้องการ
+function getN8nRoute(tenantConfig) {
+    const pageType = tenantConfig ? tenantConfig.pageType : undefined;
+    const campus = tenantConfig ? tenantConfig.campus : undefined;
+
+    if (campus === 'Project_1') {
+        return { path: 'phitsanulok-brain', extra: {} };
+    }
+    if (pageType === 'nursing' || pageType === 'general' || campus === 'Project_2') {
+        const channel = pageType === 'nursing' ? 'nursing' : (pageType === 'general' ? 'general' : 'combined');
+        return { path: 'shinawatra-brain', extra: { channel } };
+    }
+    if (campus === 'Project_3') {
+        // 'shandong' (เพจชานตง) ตอบเนื้อหาเมืองเวยไห่จริง ใน n8n ใช้ key 'weihai'
+        const PAGE_TYPE_TO_CITY = { guangzhou: 'guangzhou', shanghai: 'shanghai', shandong: 'weihai' };
+        const cityKey = PAGE_TYPE_TO_CITY[pageType] || 'china_all';
+        return { path: 'china-brain', extra: { pageType: cityKey } };
+    }
+    return null;
+}
+
+async function sendToN8nBrain(userId, userMessage, tenantConfig) {
+    const route = getN8nRoute(tenantConfig);
+    if (!route) throw new Error('[n8n] ไม่พบ route สำหรับ tenantConfig นี้');
+
+    const response = await axios.post(
+        `${N8N_BASE_URL}/webhook/${route.path}`,
+        { userId, message: userMessage, ...route.extra },
+        { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+    );
+
+    if (!response.data || !response.data.answer) {
+        throw new Error('[n8n] ไม่ได้รับคำตอบจาก workflow');
+    }
+    return response.data.answer;
+}
+
+// แต่ละ n8n Brain เก็บ state ของตัวเองคนละ key กับ Dify conversation_id โดยสิ้นเชิง
+// ต้องล้างคู่กันเสมอ ไม่งั้น "เริ่มใหม่" จะล้างแค่ Dify แต่ n8n ยังจำข้อมูลเก่าอยู่
+const N8N_STATE_PREFIX = { 'phitsanulok-brain': 'n8n:phitsanulok:', 'shinawatra-brain': 'n8n:shinawatra:', 'china-brain': 'n8n:china:' };
+
+async function clearN8nState(userId, tenantConfig) {
+    const route = getN8nRoute(tenantConfig);
+    if (!route) return;
+    const prefix = N8N_STATE_PREFIX[route.path];
+    if (!prefix) return;
+    if (redisReady) {
+        try {
+            await redisClient.del(`${prefix}${userId}`);
+        } catch (err) {
+            console.error('[n8n Reset Error]', err.message);
+        }
+    }
+}
+
+/**
+ * ---------------------------------------------------------
+ * ระบบเปิด/ปิดบอท + ตั้งเวลาทำงาน (ควบคุมโดยแอดมินผ่าน API)
+ * เก็บไว้ต่อ "campus" (Project_1/2/3) ใน Redis คีย์ bot_control:<campus>
+ * - enabled: false = แอดมินปิดบอทไว้เอง (manual override) ไม่ว่าจะกี่โมงก็ตอบไม่ได้
+ * - scheduleEnabled: true = เช็คช่วงเวลา startTime-endTime ด้วย (ตามเวลาเครื่อง server)
+ * ---------------------------------------------------------
+ */
+const BOT_CONTROL_PREFIX = 'bot_control:';
+const APPLIED_PREFIX = 'applied:'; // นักศึกษาที่เคยสมัคร/กดสนใจสมัครแล้ว (ไม่ใช่ session ชั่วคราว ไม่ถูกล้างด้วย "เริ่มใหม่")
+
+async function getBotControl(campus) {
+    const defaults = { enabled: true, scheduleEnabled: false, startTime: '08:00', endTime: '21:30' };
+    if (!campus || !redisReady) return defaults;
+    try {
+        const raw = await redisClient.get(`${BOT_CONTROL_PREFIX}${campus}`);
+        if (!raw) return defaults;
+        return { ...defaults, ...JSON.parse(raw) };
+    } catch (err) {
+        console.error('[Bot Control Get Error]', err.message);
+        return defaults;
+    }
+}
+
+async function setBotControl(campus, data) {
+    if (!redisReady) throw new Error('Redis ไม่พร้อมใช้งาน');
+    const current = await getBotControl(campus);
+    const updated = { ...current, ...data };
+    await redisClient.set(`${BOT_CONTROL_PREFIX}${campus}`, JSON.stringify(updated));
+    return updated;
+}
+
+function isWithinSchedule(control) {
+    if (!control.scheduleEnabled) return true;
+    const now = new Date();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = control.startTime.split(':').map(Number);
+    const [eh, em] = control.endTime.split(':').map(Number);
+    const startMinutes = sh * 60 + sm;
+    const endMinutes = eh * 60 + em;
+    if (startMinutes <= endMinutes) {
+        return nowMinutes >= startMinutes && nowMinutes < endMinutes;
+    }
+    // ช่วงเวลาข้ามเที่ยงคืน เช่น 21:30 - 08:00
+    return nowMinutes >= startMinutes || nowMinutes < endMinutes;
+}
+
+const OFF_HOURS_MESSAGE = 'ขออภัยค่ะ ขณะนี้อยู่นอกเวลาทำการ เดี๋ยวอาจารย์ติดต่อนักศึกษากลับโดยเร็วที่สุดนะคะ';
+
+async function isAppliedAlready(userKey) {
+    if (!redisReady) return false;
+    try {
+        const val = await redisClient.get(`${APPLIED_PREFIX}${userKey}`);
+        return val === '1';
+    } catch (err) {
+        console.error('[Applied Check Error]', err.message);
+        return false;
+    }
+}
+
+async function markApplied(userKey) {
+    if (!redisReady) return;
+    try {
+        await redisClient.set(`${APPLIED_PREFIX}${userKey}`, '1', { EX: 60 * 60 * 24 * 365 }); // เก็บ 1 ปี
+    } catch (err) {
+        console.error('[Applied Set Error]', err.message);
+    }
+}
+
 async function sendToDify(userId, platform, userMessage, tenantConfig) {
     const userKey = `${platform}:${userId}`;
+
+    if (isResetCommand(userMessage)) {
+        console.log(`[Reset] ลูกค้า ${userKey} ขอเริ่มแชทใหม่ - ล้าง conversation_id เดิมทิ้ง`);
+        await clearConversationId(userKey);
+        await clearN8nState(userId, tenantConfig);
+        // ห้ามส่งคำว่า "เริ่มใหม่"/"ล้างแชท" ตรงๆ ให้ AI ตอบ เพราะ AI จะตีความเป็นคำถามจริง
+        // (เช่นตอบว่า "ไม่สามารถล้างแชตได้ค่ะ") ให้แทนที่ด้วยคำทักทายเพื่อให้ AI โชว์ greeting ตามปกติ
+        userMessage = 'สวัสดีค่ะ';
+    }
+
+    // ----- เช็คว่าเคยสมัครไปแล้วหรือยัง (ไม่ถูกล้างด้วย "เริ่มใหม่") -----
+    if (await isAppliedAlready(userKey)) {
+        console.log(`[Applied] ${userKey} เคยสมัครไปแล้ว - ไม่เริ่ม flow ใหม่`);
+        alertAdmin(`📋 ลูกค้าที่เคยสมัครแล้วทักกลับมา: ${userKey}\nข้อความ: ${userMessage}`, `applied-${userKey}`);
+        return 'รับทราบค่ะนักศึกษา อาจารย์ดำเนินการติดต่อแอดมินที่ดูแลและตรวจสอบข้อมูลการสมัครให้นะคะ';
+    }
+
+    // ----- เช็คว่าบอทเปิดอยู่ไหม (แอดมินปิดเอง หรือ นอกเวลาทำการที่ตั้งไว้) -----
+    const campus = tenantConfig ? tenantConfig.campus : null;
+    if (campus) {
+        const control = await getBotControl(campus);
+        if (!control.enabled || !isWithinSchedule(control)) {
+            console.log(`[Bot Off] ${campus} ปิดบอทอยู่ (enabled=${control.enabled}, schedule=${control.scheduleEnabled})`);
+            alertAdmin(`🔴 บอทปิดอยู่ มีลูกค้าทักเข้ามา: ${userKey}\nข้อความ: ${userMessage}`, `botoff-${campus}`);
+            return OFF_HOURS_MESSAGE;
+        }
+    }
+
+    if (shouldUseN8n(tenantConfig)) {
+        try {
+            const n8nAnswer = await sendToN8nBrain(userId, userMessage, tenantConfig);
+            return n8nAnswer;
+        } catch (error) {
+            console.error('[n8n Brain Error]', error.response?.data || error.message);
+            alertAdmin(`🔴 n8n Brain ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.message}`, 'n8n-error');
+            throw error;
+        }
+    }
+
     const conversationId = await getConversationId(userKey);
 
     const pageType = tenantConfig ? tenantConfig.pageType || 'general' : 'general';
@@ -414,6 +651,12 @@ app.post('/webhook/line/:campus', limiter, async (req, res) => {
 
                         if (isImage) {
                             await processLineImage(event.message.id, tenantConfig.lineAccessToken, chatLog.id);
+                            // mark "สมัครแล้ว" เฉพาะตอนบอทเคยส่งลิงก์ฟอร์มในแชทนี้ไปแล้วเท่านั้น
+                            // กันรูปที่ส่งมาก่อนรู้จักฟอร์ม (เช่น ถามทรานสคริปต์/บัตรประชาชน) ถูก mark ผิด
+                            if (await db.hasSentFormLink(session.id)) {
+                                await markApplied(`line:${userId}`);
+                                console.log(`[Applied] line:${userId} ส่งรูป (สลิป/เอกสาร) หลังได้รับฟอร์มแล้ว - ถือว่าสมัครแล้ว`);
+                            }
                             if (!isText) return; // ถ้ามีแต่รูปไม่ต้องให้ Dify ตอบ
                         }
 
@@ -653,6 +896,12 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                                 const attachment = webhookEvent.message.attachments[0];
                                 if (attachment.type === 'image' || attachment.type === 'file') {
                                     await processMetaAttachment(attachment.payload.url, chatLog.id);
+                                    // mark "สมัครแล้ว" เฉพาะตอนบอทเคยส่งลิงก์ฟอร์มในแชทนี้ไปแล้วเท่านั้น
+                                    // กันรูปที่ส่งมาก่อนรู้จักฟอร์ม (เช่น ถามทรานสคริปต์/บัตรประชาชน) ถูก mark ผิด
+                                    if (await db.hasSentFormLink(session.id)) {
+                                        await markApplied(`meta:${userId}`);
+                                        console.log(`[Applied] meta:${userId} ส่งรูป/ไฟล์ (สลิป/เอกสาร) หลังได้รับฟอร์มแล้ว - ถือว่าสมัครแล้ว`);
+                                    }
                                 }
                                 if (!hasText) return; // ถ้าส่งมาแต่ไฟล์ ไม่ต้องส่งเข้า Dify
                             }
