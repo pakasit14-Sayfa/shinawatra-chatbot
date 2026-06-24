@@ -1,0 +1,238 @@
+let state;
+try { state = JSON.parse($input.first().json.stateRaw || '{}'); } catch (e) { state = {}; }
+state.history = state.history || [];
+state.major = state.major || null; // RN, PN, HR, Engineering, EdAdminMaster, GradDip
+state.degree = state.degree || null;
+state.grade = state.grade || null;
+state.track = state.track || null;
+state.age = state.age || null;
+state.weight = state.weight || null;
+state.height = state.height || null;
+state.govOrPrivate = state.govOrPrivate || null;
+state.pnTrack = state.pnTrack || null; // ปกติ, พิเศษ
+state.engineeringType = state.engineeringType || null; // เครื่องกล, ความปลอดภัย, 2ปริญญา
+state.isSpobTeacher = state.isSpobTeacher ?? null; // ป.บัณฑิต: เป็นครูเครือ สพฐ. หรือไม่
+state.pnDetailGiven = state.pnDetailGiven || false;
+state.conversationEnded = state.conversationEnded || false;
+state.detailGiven = state.detailGiven || false;
+state.wantsAdmin = false;
+
+const webhookBody = $('Webhook').first().json.body;
+const userId = webhookBody.userId;
+const channel = webhookBody.channel || 'general'; // 'general' หรือ 'nursing' ส่งมาจาก server.js
+const persona = channel === 'nursing' ? 'อาจารย์' : 'แอดมิน';
+const rawMessage = webhookBody.message || '';
+state.history.push({ role: 'user', content: rawMessage });
+
+const text = rawMessage.toLowerCase();
+// snapshot ก่อนแยกข้อมูล ใช้เช็คทีหลังว่าข้อความนี้ "ให้ข้อมูลคัดกรองจริง" หรือแค่ถามคำถามอื่นแทรก
+const fieldsBefore = JSON.stringify({major: state.major, degree: state.degree, grade: state.grade, track: state.track, age: state.age, weight: state.weight, height: state.height, govOrPrivate: state.govOrPrivate, pnTrack: state.pnTrack, engineeringType: state.engineeringType, isSpobTeacher: state.isSpobTeacher});
+// เช็คก่อนว่าเป็นคำถาม (มี ไหม/มั้ย/เท่าไหร่ ฯลฯ) เพื่อกันไม่ให้ regex จับสาขาแบบหลวมๆ (เช่น คำว่า "พยาบาล" ลอยๆ) ไปเข้าใจผิดว่าลูกค้าเลือกสาขา ทั้งที่จริงแค่ถามคำถามแทรก
+const hasQuestionMarker = /ไหม|มั้ย|ม้าย|หรอ|เท่าไหร่|เท่าไร|กี่|ยังไง|อย่างไร|ทำไม|ที่ไหน|เมื่อไหร่|รับรอง|ได้ไหม|ใช่ไหม|หรือเปล่า|ไหนคะ|ไหนครับ/.test(text);
+const numbers = (rawMessage.match(/\d+(\.\d+)?/g) || []).map(Number);
+const decimalNumbers = (rawMessage.match(/\d\.\d+/g) || []).map(Number); // เก็บไว้แยกต่างหาก กันเคสเกรด 3.0 ถูกตัดทศนิยมจนตรวจไม่เจอ
+
+// ----- กฎช่องทาง: ห้ามพูดพยาบาลในเพจทั่วไป / ห้ามพูดสาขาอื่นในเพจพยาบาล -----
+const channelBlocked = (channel === 'general' && (text.includes('พยาบาล')))
+  || (channel === 'nursing' && state.major && !['RN','PN'].includes(state.major));
+
+// ----- ตรวจคำตอบรับสั้นๆ หลังจากให้รายละเอียดคอร์สไปแล้ว -----
+const confirmWords = ['สนใจ', 'ใสใจ', 'สนจ', 'ใช่', 'ตกลง', 'โอเค', 'เอาเลย', 'ครับสนใจ', 'อยากสมัคร', 'สมัคร'];
+if (state.detailGiven && !state.conversationEnded && confirmWords.some(w => text.includes(w))) {
+  state.wantsAdmin = true;
+  const FORM_NURSING2 = 'https://forms.gle/MKg5NfUtvjj1xr2k7';
+  const FORM_ENGINEERING2 = 'https://forms.gle/nPJuM28hHuynxtp97';
+  const FORM_HR2 = 'https://forms.gle/YBXny8GdW1VAXocJ6';
+  const FORM_EDU2 = 'https://docs.google.com/forms/d/17Tq151nb8UH2C5QyL1EF922PzHrpGA_bCJhd7tnToLQ/viewform';
+  const QR_PAYMENT2 = 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/shinawatra/payment-qr.png';
+  const formLink2 = ['RN','PN'].includes(state.major) ? FORM_NURSING2 : (state.major === 'Engineering' ? FORM_ENGINEERING2 : (state.major === 'HR' ? FORM_HR2 : (['EdAdminMaster','GradDip'].includes(state.major) ? FORM_EDU2 : null)));
+  if (formLink2) {
+    state.forcedAnswer = 'อาจารย์ส่งแบบฟอร์มการกรอกข้อมูลการสมัครนะคะ\n' + formLink2 + '\n![QR ชำระเงิน](' + QR_PAYMENT2 + ')\n===\nลูกชำระค่าสมัครเรียบร้อยแล้วแจ้งอาจารย์นะคะ อาจารย์นำรายชื่อเข้าระบบให้ก่อนค่ะ ส่วนเอกสารที่ขาดสามารถแนบในฟอร์มภายหลังได้ค่ะลูก';
+  }
+}
+
+// ----- ดึงสาขาที่สนใจ (deterministic) -----
+if (!state.major && !channelBlocked && !hasQuestionMarker) {
+  if (channel === 'nursing' || text.includes('พยาบาล')) {
+    const says1Year = /1\s*ปี/.test(text);
+    if (text.includes('ผู้ช่วย') || /\bpn\b/.test(text) || says1Year) state.major = 'PN';
+    else if (/\brn\b/.test(text) || text.includes('พยาบาล')) state.major = 'RN';
+    // ถ้าพิมพ์ "พยาบาล" ลอยๆ ไม่ระบุ ให้รอถามก่อน (major ยังเป็น null)
+  } else if (text.includes('ทรัพยากรมนุษย์') || /\bhr\b/.test(text)) {
+    state.major = 'HR';
+  } else if (text.includes('วิศว') || text.includes('เครื่องกล') || text.includes('ความปลอดภัย') || /2\s*ปริญญา|สองปริญญา/.test(text)) {
+    state.major = 'Engineering';
+  } else if (text.includes('บริหารการศึกษา') || text.includes('ป.โท')) {
+    state.major = 'EdAdminMaster';
+  } else if (text.includes('ป.บัณฑิต') || text.includes('บัณฑิตวิชาชีพครู')) {
+    state.major = 'GradDip';
+  }
+}
+
+// ----- ดึงวุฒิการศึกษา -----
+if (!state.degree) {
+  if (/กศน/.test(text)) state.degree = 'กศน.';
+  else if (/ม\.?6|มัธยมศึกษาปีที่\s*6|มัธยมปลาย/.test(text)) state.degree = 'ม.6';
+  else if (/ปวช/.test(text)) state.degree = 'ปวช.';
+  else if (/ปวส/.test(text)) state.degree = 'ปวส.';
+  else if (/ป\.?ตรี|ปริญญาตรี|bachelor/.test(text)) state.degree = 'ปริญญาตรี';
+}
+if (!state.job && /ทำงาน|รับราชการ|พนักงาน|ธุรกิจส่วนตัว|อาชีพ|ครู/.test(text)) state.job = rawMessage;
+if (!state.experience && /ปี|ปีแล้ว|ประสบการณ์/.test(text)) state.experience = rawMessage;
+
+// ----- RN และ PN: เกรด/สาย/อายุ/น้ำหนัก/ส่วนสูง (เก็บข้อมูลเหมือนกัน แต่ PN ไม่มีเกณฑ์ตัดสิทธิ์) -----
+// เก็บได้ตลอดเวลาไม่ต้องรอรู้สาขาก่อน (ลูกค้าบางคนให้ข้อมูลมาก่อนบอกว่าเลือก RN/PN)
+{
+  if (!state.track) {
+    if (/วิทย์|วิทยาศาสตร์/.test(text)) state.track = 'วิทย์-คณิต';
+    else if (/สังคม|ศิลป์|ภาษา|ศิลภาษา/.test(text)) state.track = 'สายอื่นๆ';
+  }
+  if (state.grade === null) {
+    const g = decimalNumbers.find(n => n >= 0 && n <= 4);
+    if (g !== undefined) state.grade = g;
+  }
+  if (state.age === null) {
+    const a = numbers.find(n => n >= 10 && n <= 100 && Number.isInteger(n));
+    if (a !== undefined) state.age = a;
+  }
+  if (state.weight === null) {
+    const w = numbers.find(n => n >= 30 && n <= 150);
+    if (w !== undefined) state.weight = w;
+  }
+  if (state.height === null) {
+    const h = numbers.find(n => n >= 140 && n <= 210);
+    if (h !== undefined) state.height = h;
+  }
+}
+// RN รับเฉพาะวุฒิ ม.6 (สายสามัญ) เท่านั้น สายอาชีพ (ปวช./ปวส./ป.ตรี) และ กศน. ไม่รับ
+if (state.major === 'RN' && state.degree && state.degree !== 'ม.6' && !state.conversationEnded) {
+  state.conversationEnded = true;
+  state.forcedAnswer = 'หลักสูตรพยาบาล (RN) รับเฉพาะวุฒิ ม.6 สายสามัญเท่านั้นนะคะ วุฒิที่นักศึกษาแจ้งมายังไม่สามารถสมัครหลักสูตรนี้ได้ ต้องขออภัยด้วยนะคะ หากนักศึกษาสนใจหลักสูตรผู้ช่วยพยาบาล (PN) แทน สามารถแจ้งอาจารย์ได้เลยนะคะ';
+}
+
+// ----- เฉพาะ PN: เลือกภาคปกติ/พิเศษ -----
+if (state.major === 'PN' && !state.pnTrack) {
+  if (/พิเศษ|เสาร์|อาทิตย์/.test(text)) state.pnTrack = 'พิเศษ';
+  else if (/ปกติ|จันทร์|ศุกร์/.test(text)) state.pnTrack = 'ปกติ';
+}
+
+// ----- เฉพาะ Engineering: เลือกหลักสูตร (เครื่องกล/ความปลอดภัย/2ปริญญา) -----
+if (state.major === 'Engineering' && !state.engineeringType) {
+  const hasMech = /เครื่องกล/.test(text);
+  const hasSafety = /ความปลอดภัย/.test(text);
+  if (hasMech && hasSafety) state.engineeringType = '2ปริญญา';
+  else if (/2\s*ปริญญา|สองปริญญา/.test(text)) state.engineeringType = '2ปริญญา';
+  else if (hasMech) state.engineeringType = 'เครื่องกล';
+  else if (hasSafety) state.engineeringType = 'ความปลอดภัย';
+}
+
+// ----- เฉพาะ HR: ที่ทำงานรัฐ/เอกชน -----
+if (state.major === 'HR' && !state.govOrPrivate) {
+  if (/รัฐ|ราชการ|รัฐวิสาหกิจ/.test(text)) state.govOrPrivate = 'รัฐ';
+  else if (/เอกชน|บริษัท/.test(text)) state.govOrPrivate = 'เอกชน';
+}
+
+// ----- เฉพาะ GradDip: เป็นครูเครือ สพฐ. หรือไม่ -----
+if (state.major === 'GradDip' && state.isSpobTeacher === null) {
+  if (/ไม่ใช่|ไม่ได้เป็น|ไม่มี/.test(text)) state.isSpobTeacher = false;
+  else if (/เป็นครู|ใช่|สพฐ/.test(text)) state.isSpobTeacher = true;
+}
+if (state.major === 'GradDip' && state.isSpobTeacher === false) state.conversationEnded = true;
+
+// ----- เช็คว่าข้อมูลครบหรือยังตาม major -----
+function infoCompleteFor(major) {
+  if (major === 'RN' || major === 'PN') {
+    // "สายการเรียน" (วิทย์/ศิลป์) มีความหมายแค่กับวุฒิ ม.6 เท่านั้น วุฒิ ปวช./ปวส./ป.ตรี ไม่มีสายแบบนี้ ไม่ต้องบังคับ
+    const trackOk = state.degree === 'ม.6' ? !!state.track : true;
+    return !!(state.degree && state.grade !== null && trackOk && state.age !== null && state.weight !== null && state.height !== null);
+  }
+  if (major === 'HR') return state.degree && state.govOrPrivate;
+  if (major === 'Engineering') return !!(state.degree && state.engineeringType);
+  if (major === 'EdAdminMaster') return !!state.degree;
+  if (major === 'GradDip') return state.isSpobTeacher !== null;
+  return false;
+}
+const infoComplete = state.major ? infoCompleteFor(state.major) : false;
+// RN/PN ข้อมูลยังไม่ครบ -> ส่งคำถามแบบตายตัวเสมอ (ไม่ผ่าน AI เด็ดขาด กัน AI วนตอบฟอร์มเปล่าซ้ำทั้งที่มีข้อมูลแล้วบางส่วน)
+// ถ้ายังไม่ต้องใช้สายการเรียน (วุฒิไม่ใช่ ม.6) ไม่ต้องถามช่องนี้เลย
+if (['RN','PN'].includes(state.major) && !infoComplete && !state.conversationEnded) {
+  const needsTrack = state.degree === 'ม.6';
+  const rows = [
+    '- จบวุฒิการศึกษา = ' + (state.degree || ''),
+    '- เกรดเฉลี่ย = ' + (state.grade !== null ? state.grade : ''),
+  ];
+  if (needsTrack) rows.push('- สายการเรียน = ' + (state.track || ''));
+  rows.push('- อายุ = ' + (state.age !== null ? state.age : ''));
+  rows.push('- น้ำหนัก = ' + (state.weight !== null ? state.weight : ''));
+  rows.push('- ส่วนสูง = ' + (state.height !== null ? state.height : ''));
+  state.forcedAnswer = 'อาจารย์ขอสอบถามข้อมูลเบื้องต้นของนักศึกษาก่อนนะคะ\n' + rows.join('\n') + '\nนักศึกษาแจ้งข้อมูลที่ยังขาดเพื่อประเมินคุณสมบัติได้เลยนะคะ';
+}
+
+// ----- ถ้าครบแล้วและเป็น RN ให้คำนวณเกณฑ์แบบ deterministic -----
+let rnEligible = null;
+let rnFailReasons = [];
+if (state.major === 'RN' && infoComplete && !state.conversationEnded) {
+  const heightM = state.height / 100;
+  const bmi = state.weight / (heightM * heightM);
+  const gradeMin = state.track === 'วิทย์-คณิต' ? 2.00 : 2.50;
+  if (!(bmi >= 17.5 && bmi <= 30)) rnFailReasons.push('BMI');
+  if (!(state.height >= 150)) rnFailReasons.push('ส่วนสูง');
+  if (!(state.weight >= 40)) rnFailReasons.push('น้ำหนัก');
+  if (!(state.age >= 16 && state.age <= 30)) rnFailReasons.push('อายุ');
+  if (!(state.grade >= gradeMin)) rnFailReasons.push('เกรดเฉลี่ย');
+  rnEligible = rnFailReasons.length === 0;
+}
+// ผ่านเกณฑ์ RN -> ส่งข้อความ+รูปแบบตายตัว ไม่ผ่าน -> ส่งต่อแอดมินทันที (ตามสเปคที่ทีมให้มา)
+if (state.major === 'RN' && infoComplete && !state.detailGiven) {
+  state.forcedAnswer = rnEligible
+    ? 'เกณฑ์คุณสมบัติเบื้องต้นผ่านนะคะ อาจารยส่งรายละเอียดให้ค่ะ\n===\n![ตารางผ่อนชำระกรณีกู้ กยศ.](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/shinawatra/nursing/rn-loan-installment-table.jpg)\n===\nนักศึกษาสามารถทำเรื่องยื่นกู้ กยศ. เพื่อลดภาระค่าเทอมได้ค่ะ แต่ในการยื่นกู้ทาง กยศ. จะเป็นคนพิจารณาอีกครั้งว่าจะผ่านไม่ผ่านค่ะ ในกรณีกู้ กยศ. แล้วผ่านไม่ต้องสำรองจ่าย ชำระเพียงค่าส่วนต่างเท่านั้นนะคะ แต่ในส่วนที่ยื่นแล้วผลไม่ผ่านนักศึกษาจะต้องมีสำรองจ่ายไว้ค่ะ\n\nค่าสมัครเพียง 1,000 บาทเท่านั้นค่ะ ชำระผ่านบัญชีธนาคารของมหาวิทยาลัยโดยตรงค่ะ\n===\nถ้าหากนักศึกษาสนใจสมัคร แจ้งอาจารย์ได้ในแชทนี้เลยนะคะ อาจารย์จะมีฟอร์มให้นักศึกษากรอกข้อมูลการสมัครค่ะ'
+    : 'เดี๋ยวอาจารย์ติดต่อไปให้ข้อมูลเพิ่มเติมนะคะ';
+}
+
+// ----- PN: เกณฑ์อายุ/ส่วนสูง/น้ำหนักตัดสิทธิ์ได้ ส่วน BMI แค่ข้อมูลไว้พูดคุย ไม่ตัดสิทธิ์ -----
+let pnEligible = null;
+let pnFailReasons = [];
+if (state.major === 'PN' && infoComplete) {
+  if (!(state.height >= 150)) pnFailReasons.push('ส่วนสูง');
+  if (!(state.weight >= 40)) pnFailReasons.push('น้ำหนัก');
+  if (!(state.age >= 16 && state.age <= 60)) pnFailReasons.push('อายุ');
+  pnEligible = pnFailReasons.length === 0;
+}
+if (state.major === 'PN' && infoComplete && !state.detailGiven) {
+  state.forcedAnswer = pnEligible
+    ? 'เกณฑ์คุณสมบัติเบื้องต้นผ่านนะคะ อาจารยส่งรายละเอียดให้ค่ะ\n===\n![ตารางค่าเทอมผู้ช่วยพยาบาล](https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/shinawatra/nursing/pn-tuition-table.jpg)\n===\n📢 ขณะนี้หลักสูตรผู้ช่วยพยาบาล สามารถดำเนินการยื่นกู้กองทุนเงินให้กู้ยืมเพื่อการศึกษา (กยศ.) ได้แล้ว\n- นักศึกษาสามารถกู้ยืมได้สูงสุด 50,000 บาท ตลอดหลักสูตร (การกู้ กยศ.จะขึ้นอยู่กับการพิจารณาของทาง กยศ.เท่านั้น)\n- สำหรับภาคเรียนที่ 1 มีค่าใช้จ่ายส่วนต่างที่นักศึกษาต้องชำระเพิ่มเติมจำนวน 31,000 บาท (รวมค่าสมัคร 500 บาท)\n- สำหรับค่าเล่าเรียน ภาคเรียนที่ 2 และ 3 นักศึกษาจำเป็นต้องสำรองชำระค่าใช้จ่ายล่วงหน้า จำนวน 50,000 บาท\n\nรายละเอียดการชำระค่าเล่าเรียน ภาคเรียนที่ 1 มีดังนี้\n1. ชำระค่าสมัครจำนวน 500 บาท ในวันสมัคร เพื่อให้ทางอาจารย์ดำเนินการจัดทำเอกสารและบันทึกรายชื่อเข้าสู่ระบบรับสมัครของมหาวิทยาลัย\n2. ชำระค่าเล่าเรียน ภาคเรียนที่ 1 งวดที่ 1 จำนวน 5,000 บาท ภายใน 1 สัปดาห์ หลังจากชำระค่าสมัครเรียบร้อยแล้ว\n3. ชำระค่าเล่าเรียน ภาคเรียนที่ 1 งวดที่ 2 จำนวน 10,000 บาท ภายใน 1 สัปดาห์ หลังจากรายงานตัวเรียบร้อยแล้ว (หรือสามารถชำระพร้อมกันได้ตามความสะดวก)\n4. ค่าเล่าเรียน ภาคเรียนที่ 1 ส่วนที่เหลือจำนวน 15,500 บาท สามารถทยอยชำระให้ครบก่อนวันเปิดภาคเรียน\n===\nถ้าหากนักศึกษาสนใจสมัคร แจ้งอาจารย์ได้ในแชทนี้เลยนะคะ อาจารย์จะมีฟอร์มให้นักศึกษากรอกข้อมูลการสมัครค่ะ'
+    : 'เดี๋ยวอาจารย์ติดต่อไปให้ข้อมูลเพิ่มเติมนะคะ';
+}
+
+// ให้รายละเอียดคอร์ส PN แบบตายตัว (จัดบรรทัด/bullet เหมือนสไตล์ RN) เพื่อความแน่นอน ไม่ผ่าน AI
+if (state.major === 'PN' && pnEligible && state.pnTrack && !state.pnDetailGiven) {
+  const pnLocation = state.pnTrack === 'พิเศษ' ? 'อาคาร OAI ย่านอโศก กรุงเทพมหานคร (เข้าแลบ/ฝึกงานต้องไปปทุมธานี)' : 'มหาวิทยาลัยชินวัตร จังหวัดปทุมธานี';
+  state.forcedAnswer = 'คุณสมบัติเบื้องต้นของลูกผ่านแล้วนะคะ\nอาจารย์ขอสรุปรายละเอียดหลักสูตรผู้ช่วยพยาบาล ภาค' + state.pnTrack + ' ให้นะคะ\n- ระยะเวลาเรียน: 1 ปี\n- สถานที่เรียน: ' + pnLocation + '\n- ค่าสมัคร: 500 บาท\n- ค่าใช้จ่ายภาคเรียนที่ 1: 31,000 บาท (รวมค่าสมัครแล้ว)\n- ภาคเรียนที่ 2-3: สำรองชำระล่วงหน้า 50,000 บาท\n- กู้ กยศ. ได้สูงสุด 50,000 บาทตลอดหลักสูตร (อนุมัติตามเงื่อนไข กยศ.)\nสนใจสมัครเลยไหมคะ';
+  state.pnDetailGiven = true;
+}
+
+if (infoComplete) state.detailGiven = true;
+
+// ----- เช็คว่าข้อความนี้เป็นคำถามแทรกที่อยู่นอกขอบเขตงานคัดกรองหรือไม่ -----
+// ระบบนี้ทำหน้าที่แค่คัดกรองข้อมูลเบื้องต้น (เลือกสาขา + กรอกข้อมูลตามเกณฑ์) เท่านั้น
+// คำถามอื่นๆ (ค่าเทอม, ที่ตั้ง, กยศ., การรับรอง ฯลฯ) ให้ส่งต่อแอดมินจริงแทนการให้ AI เดาตอบ
+const fieldsAfter = JSON.stringify({major: state.major, degree: state.degree, grade: state.grade, track: state.track, age: state.age, weight: state.weight, height: state.height, govOrPrivate: state.govOrPrivate, pnTrack: state.pnTrack, engineeringType: state.engineeringType, isSpobTeacher: state.isSpobTeacher});
+const extractedSomethingNew = fieldsBefore !== fieldsAfter;
+const isGreetingOnly = /^(สวัสดี|หวัดดี|หัดดี|ดีครับ|ดีค่ะ|hi|hello)/.test(text.trim());
+const offTopic = !channelBlocked && !state.conversationEnded && !state.wantsAdmin && !extractedSomethingNew && !isGreetingOnly && hasQuestionMarker;
+
+return [{
+  json: {
+    ...state,
+    userId,
+    channel,
+    persona,
+    channelBlocked,
+    infoComplete,
+    rnEligible,
+    rnFailReasons,
+    pnEligible,
+    pnFailReasons,
+    offTopic
+  }
+}];

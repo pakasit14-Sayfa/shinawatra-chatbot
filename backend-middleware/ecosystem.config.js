@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'plu-chatbot',
       script: 'server.js',
-      cwd: 'c:\\Dilion\\dify-webhook-middleware',
+      cwd: 'C:\\Dilion\\Theme_UI_extracted\\Guidance teacher system\\backend-middleware',
       watch: false,
       autorestart: true,
       max_restarts: 10,
@@ -13,8 +13,8 @@ module.exports = {
       },
       // Log settings
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
-      out_file: 'c:\\Dilion\\dify-webhook-middleware\\logs\\out.log',
-      error_file: 'c:\\Dilion\\dify-webhook-middleware\\logs\\err.log',
+      out_file: 'C:\\Dilion\\Theme_UI_extracted\\Guidance teacher system\\backend-middleware\\logs\\out.log',
+      error_file: 'C:\\Dilion\\Theme_UI_extracted\\Guidance teacher system\\backend-middleware\\logs\\err.log',
       merge_logs: true,
     },
   ],

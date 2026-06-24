@@ -1,0 +1,113 @@
+{
+  "name": "Brain 3 - Study in China",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "china-brain",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook3",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1200, 300],
+      "webhookId": "china-brain"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "stateRaw",
+        "key": "=n8n:china:{{$json.body.userId}}"
+      },
+      "id": "redisGet3",
+      "name": "Redis Get State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-960, 300],
+      "credentials": {
+        "redis": { "id": "6E4f36VbPUmo86lv", "name": "Redis - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let state;\ntry { state = JSON.parse($input.first().json.stateRaw || '{}'); } catch (e) { state = {}; }\nstate.history = state.history || [];\nstate.age = state.age ?? null;\nstate.hasBasic = state.hasBasic ?? null; // true/false\nstate.beenChina = state.beenChina ?? null; // true/false\nstate.city = state.city || null; // Guangzhou, Shanghai, Weihai, Harbin\nstate.detailGiven = state.detailGiven || false;\nstate.wantsAdmin = false;\n\nconst webhookBody = $('Webhook').first().json.body;\nconst userId = webhookBody.userId;\n// pageType: 'guangzhou' | 'shanghai' | 'weihai' | 'harbin' | 'china_all' | 'combined' (LINE/รวม)\nconst pageType = webhookBody.pageType || 'china_all';\nconst rawMessage = webhookBody.message || '';\nstate.history.push({ role: 'user', content: rawMessage });\nconst text = rawMessage.toLowerCase();\nconst numbers = (rawMessage.match(/\\d+/g) || []).map(Number);\n\n// ----- บีบเมืองตาม pageType ถ้าเพจเฉพาะเมือง -----\nconst CITY_BY_PAGE = { guangzhou: 'Guangzhou', shanghai: 'Shanghai', weihai: 'Weihai', harbin: 'Harbin' };\nif (CITY_BY_PAGE[pageType]) state.city = CITY_BY_PAGE[pageType];\n\n// ----- ตรวจคำตอบรับสั้นๆ หลังให้รายละเอียดคอร์สไปแล้ว -----\nconst confirmWords = ['สนใจ', 'ใช่', 'ตกลง', 'โอเค', 'เอาเลย', 'อยากสมัคร', 'สมัคร'];\nif (state.detailGiven && confirmWords.some(w => text.includes(w))) {\n  state.wantsAdmin = true;\n}\n\n// ----- ดึงอายุ/พื้นฐานภาษา/ประวัติเคยไปจีน (deterministic) -----\nif (state.age === null) {\n  const a = numbers.find(n => n >= 10 && n <= 70);\n  if (a !== undefined) state.age = a;\n}\nif (state.hasBasic === null) {\n  if (/ไม่มีพื้นฐาน|ไม่มี basic|ไม่เคยเรียน/.test(text)) state.hasBasic = false;\n  else if (/มีพื้นฐาน|พอได้บ้าง|hsk/.test(text)) state.hasBasic = true;\n}\nif (state.beenChina === null) {\n  if (/ไม่เคยไปจีน|ไม่เคยไป/.test(text)) state.beenChina = false;\n  else if (/เคยไปจีน|เคยไป/.test(text)) state.beenChina = true;\n}\n\n// ----- ดึงชื่อเมือง (เฉพาะกรณีเพจรวม/LINE ที่ยังไม่ถูกบีบเมือง) -----\nif (!state.city) {\n  if (text.includes('กว่างโจว')) state.city = 'Guangzhou';\n  else if (text.includes('เซี่ยงไฮ้')) state.city = 'Shanghai';\n  else if (text.includes('เวยไห่')) state.city = 'Weihai';\n  else if (text.includes('ฮาร์บิน')) state.city = 'Harbin';\n}\n\nconst infoComplete = state.age !== null && state.hasBasic !== null && state.beenChina !== null;\nif (infoComplete && state.city) state.detailGiven = true;\n\nreturn [{ json: { ...state, userId, pageType, infoComplete } }];"
+      },
+      "id": "extractCode3",
+      "name": "Extract Info (Deterministic)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-720, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.5,\n  messages: [\n    { role: 'system', content: (function(){\n      const j = $json;\n      const IMG = {\n        Guangzhou: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/scnu-1-term.jpg',\n        GuangzhouIntensive: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/guangzhou/scnu-1-term-intensive.jpg',\n        Shanghai: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/shanghai/ecust-standard.jpg',\n        ShanghaiIntensive: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/shanghai/ecust-intensive.jpg',\n        Weihai: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/weihai/sduw-1-term.jpg',\n        Harbin: 'https://raw.githubusercontent.com/pakasit14-Sayfa/shinawatra-chatbot/main/backend-middleware/public/images/china/harbin/heu-1-term.jpg'\n      };\n      let facts = '';\n      if (j.wantsAdmin) {\n        facts = 'ลูกค้าตอบรับสนใจสมัครแล้วหลังได้รับรายละเอียดคอร์ส ให้ตอบรับสั้นๆ ว่าจะให้เจ้าหน้าที่ Dilion Education ติดต่อกลับผ่าน Line Official Account';\n      } else if (!j.infoComplete) {\n        const need = [];\n        if (j.age === null) need.push('อายุ');\n        if (j.hasBasic === null) need.push('มีพื้นฐานภาษาจีนหรือไม่');\n        if (j.beenChina === null) need.push('เคยไปเรียนที่ประเทศจีนมาก่อนไหม');\n        facts = 'ยังขาดข้อมูล: ' + need.join(', ') + '. ข้อมูลที่มีแล้ว (ห้ามถามซ้ำ): อายุ=' + (j.age??'-') + ' พื้นฐาน=' + (j.hasBasic===null?'-':(j.hasBasic?'มี':'ไม่มี')) + ' เคยไปจีน=' + (j.beenChina===null?'-':(j.beenChina?'เคย':'ไม่เคย')) + '. ให้ทักทายสั้นๆ (ถ้ายังไม่ทัก) แล้วถามเฉพาะข้อมูลที่ยังขาดเท่านั้น';\n      } else if (!j.city) {\n        facts = 'ข้อมูลครบแล้ว ให้เสนอเมืองให้เลือก: กว่างโจว, เซี่ยงไฮ้, เวยไห่, ฮาร์บิน แล้วถามว่าสนใจเมืองไหน';\n      } else if (j.city === 'Guangzhou') {\n        const img = j.hasBasic ? IMG.GuangzhouIntensive : IMG.Guangzhou;\n        const courseName = j.hasBasic ? 'หลักสูตรเร่งรัด (Intensive)' : 'หลักสูตรปกติ (Standard)';\n        facts = 'เมืองกว่างโจว มหาวิทยาลัย South China Normal University (SCNU) ไม่ต้องมีพื้นฐานภาษาจีนก็เรียนได้ทุกคอร์ส (ไม่ต้องใช้ HSK) สำหรับลูกค้านี้ (มีพื้นฐาน=' + (j.hasBasic?'มี':'ไม่มี') + ') แนะนำ ' + courseName + ' ให้แนบรูปโบรชัวร์ด้วย Markdown แบบนี้เป๊ะๆ: ![รายละเอียดคอร์ส](' + img + ') แล้วถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.city === 'Shanghai') {\n        const img = j.hasBasic ? IMG.ShanghaiIntensive : IMG.Shanghai;\n        const courseName = j.hasBasic ? 'หลักสูตรเร่งรัด (ต้องมี HSK3 ขึ้นไป)' : 'หลักสูตรปกติ (ไม่ต้องมีพื้นฐาน)';\n        facts = 'เมืองเซี่ยงไฮ้ มหาวิทยาลัย East China University of Science and Technology (ECUST) แนะนำ ' + courseName + ' ให้แนบรูปโบรชัวร์ด้วย Markdown แบบนี้เป๊ะๆ: ![รายละเอียดคอร์ส](' + img + ') แล้วถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.city === 'Weihai') {\n        facts = 'เมืองเวยไห่ มหาวิทยาลัย Shandong University Weihai Campus (SDUW) เมืองชายทะเล สงบ ปลอดภัย ไม่ต้องมีพื้นฐานภาษาจีนเลย ทุกคนสมัครได้ ให้แนบรูปโบรชัวร์ด้วย Markdown แบบนี้เป๊ะๆ: ![รายละเอียดคอร์ส](' + IMG.Weihai + ') แล้วถามว่าสนใจคอร์ส 1 เทอม หรือ 1 ปี';\n      } else if (j.city === 'Harbin') {\n        facts = 'เมืองฮาร์บิน มหาวิทยาลัย Harbin Engineering University (HEU) เมืองหนาวมีหิมะ เด่นด้านวิศวกรรม ไม่ต้องมีพื้นฐานภาษาจีนเลย (ไม่ต้องใช้ HSK) ให้แนบรูปโบรชัวร์ด้วย Markdown แบบนี้เป๊ะๆ: ![รายละเอียดคอร์ส](' + IMG.Harbin + ') แล้วถามว่าสนใจคอร์ส 1 เทอม หรือ 1 ปี';\n      }\n      return 'คุณคือเจ้าหน้าที่ Dilion Education ศูนย์แนะนำเรียนต่อประเทศจีน พูดสุภาพ ลงท้าย \"ค่ะ\" เสมอ ห้ามใช้ \"ครับ\" กระชับเป็นธรรมชาติ ห้ามมั่วราคา/เงื่อนไขที่ไม่ได้ให้มา ห้ามใส่ลิงก์รูปอื่นนอกจากที่ให้มาเป๊ะๆ\\n\\nข้อมูลที่ต้องใช้ตอบ: ' + facts;\n    })() },\n    ...$json.history\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "openaiReply3",
+      "name": "AI - Generate Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-480, 300],
+      "credentials": {
+        "httpHeaderAuth": { "id": "eoikRoa7Qb4pyyxv", "name": "OpenAI Header Auth - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $input.first().json;\nconst answer = incoming.choices[0].message.content;\nconst state = $('Extract Info (Deterministic)').first().json;\nstate.history.push({ role: 'assistant', content: answer });\nreturn [{ json: { ...state, answer } }];"
+      },
+      "id": "mergeAnswer3",
+      "name": "Merge Answer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=n8n:china:{{$json.userId}}",
+        "value": "={{ JSON.stringify({history: $json.history, age: $json.age, hasBasic: $json.hasBasic, beenChina: $json.beenChina, city: $json.city, detailGiven: $json.detailGiven}) }}",
+        "expire": true,
+        "ttl": 2592000
+      },
+      "id": "redisSet3",
+      "name": "Redis Save State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "credentials": {
+        "redis": { "id": "6E4f36VbPUmo86lv", "name": "Redis - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { answer: $json.answer } }}",
+        "options": {}
+      },
+      "id": "respond3",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Redis Get State", "type": "main", "index": 0 }]] },
+    "Redis Get State": { "main": [[{ "node": "Extract Info (Deterministic)", "type": "main", "index": 0 }]] },
+    "Extract Info (Deterministic)": { "main": [[{ "node": "AI - Generate Reply", "type": "main", "index": 0 }]] },
+    "AI - Generate Reply": { "main": [[{ "node": "Merge Answer", "type": "main", "index": 0 }]] },
+    "Merge Answer": { "main": [[{ "node": "Redis Save State", "type": "main", "index": 0 }]] },
+    "Redis Save State": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": {}
+}

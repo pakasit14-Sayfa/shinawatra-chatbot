@@ -141,3 +141,36 @@
 2026-06-15 16:53:13: <p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
 2026-06-15 16:53:13: 
 2026-06-15 16:53:13: [queue] error for user Ufc585127e456c822a523cb4a205e6f99: Request failed with status code 404
+2026-06-24 10:15:15: [ActiveUsers] ดึงชื่อไม่สำเร็จ (meta): {
+2026-06-24 10:15:15:   error: {
+2026-06-24 10:15:15:     message: "Unsupported get request. Object with ID 'diag_realfb_nurse1' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+2026-06-24 10:15:15:     type: 'GraphMethodException',
+2026-06-24 10:15:15:     code: 100,
+2026-06-24 10:15:15:     error_subcode: 33,
+2026-06-24 10:15:15:     fbtrace_id: 'AySk1fbTGzot5Z7RqE7Sd3g'
+2026-06-24 10:15:15:   }
+2026-06-24 10:15:15: }
+2026-06-24 10:15:18: [META Profile Fetch Error] Request failed with status code 400
+2026-06-24 10:15:22: [FB send error] (#100) Param recipient[id] must be a valid ID string (e.g., "123")
+2026-06-24 10:15:29: [ActiveUsers] ดึงชื่อไม่สำเร็จ (meta): {
+2026-06-24 10:15:29:   error: {
+2026-06-24 10:15:29:     message: "Unsupported get request. Object with ID 'diag_realfb_nurse2' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+2026-06-24 10:15:29:     type: 'GraphMethodException',
+2026-06-24 10:15:29:     code: 100,
+2026-06-24 10:15:29:     error_subcode: 33,
+2026-06-24 10:15:29:     fbtrace_id: 'AWIKJPcn46c0U-r3HwhxsYh'
+2026-06-24 10:15:29:   }
+2026-06-24 10:15:29: }
+2026-06-24 10:15:32: [META Profile Fetch Error] Request failed with status code 400
+2026-06-24 10:15:35: [FB send error] (#100) Param recipient[id] must be a valid ID string (e.g., "123")
+2026-06-24 10:17:10: [ActiveUsers] ดึงชื่อไม่สำเร็จ (meta): {
+2026-06-24 10:17:10:   error: {
+2026-06-24 10:17:10:     message: "Unsupported get request. Object with ID 'diag_realfb_nurse3' does not exist, cannot be loaded due to missing permissions, or does not support this operation. Please read the Graph API documentation at https://developers.facebook.com/docs/graph-api",
+2026-06-24 10:17:10:     type: 'GraphMethodException',
+2026-06-24 10:17:10:     code: 100,
+2026-06-24 10:17:10:     error_subcode: 33,
+2026-06-24 10:17:10:     fbtrace_id: 'Al0yDcCdHlr0ekoxh0VKzCb'
+2026-06-24 10:17:10:   }
+2026-06-24 10:17:10: }
+2026-06-24 10:17:13: [META Profile Fetch Error] Request failed with status code 400
+2026-06-24 10:17:15: [FB send error] (#100) Param recipient[id] must be a valid ID string (e.g., "123")

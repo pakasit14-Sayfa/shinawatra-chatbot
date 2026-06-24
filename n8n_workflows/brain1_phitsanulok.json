@@ -1,0 +1,189 @@
+{
+  "name": "Brain 1 - Phitsanulok University",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "phitsanulok-brain",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1200, 300],
+      "webhookId": "phitsanulok-brain"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "stateRaw",
+        "key": "=n8n:phitsanulok:{{$json.body.userId}}"
+      },
+      "id": "redisGet1",
+      "name": "Redis Get State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-960, 300],
+      "credentials": {
+        "redis": {
+          "id": "REPLACE_WITH_YOUR_REDIS_CREDENTIAL_ID",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// โหลด state เดิม (ถ้ามี) หรือสร้างใหม่\nlet state;\ntry {\n  state = JSON.parse($input.first().json.stateRaw || '{}');\n} catch (e) {\n  state = {};\n}\nstate.history = state.history || [];\nstate.degree = state.degree || null;       // วุฒิการศึกษา\nstate.job = state.job || null;             // อาชีพ\nstate.experience = state.experience || null; // ประสบการณ์ทำงาน\nstate.major = state.major || null;         // สาขาที่สนใจ: นิติ/บัญชี/รัฐประศาสนศาสตร์\n\nconst userMessage = $('Webhook').first().json.body.message || '';\nstate.history.push({ role: 'user', content: userMessage });\n\nconst text = userMessage.toLowerCase();\n\n// ----- ดึงสาขาที่สนใจ (deterministic, ไม่พึ่ง AI ตัดสินใจ) -----\nif (!state.major) {\n  if (text.includes('นิติ')) state.major = 'นิติศาสตร์';\n  else if (text.includes('บัญชี')) state.major = 'บัญชี';\n  else if (text.includes('รัฐประศาสน') || text.includes('รัฐ')) state.major = 'รัฐประศาสนศาสตร์';\n}\n\n// ----- ดึงวุฒิการศึกษา -----\nif (!state.degree) {\n  if (/ม\\.?6|มัธยมศึกษาปีที่\\s*6|มัธยมปลาย/.test(text)) state.degree = 'ม.6';\n  else if (/ปวช/.test(text)) state.degree = 'ปวช.';\n  else if (/ปวส/.test(text)) state.degree = 'ปวส.';\n  else if (/ป\\.?ตรี|ปริญญาตรี|bachelor/.test(text)) state.degree = 'ปริญญาตรี';\n  else if (/ป\\.?โท|ปริญญาโท|master/.test(text)) state.degree = 'ปริญญาโท';\n}\n\n// ----- ดึงอาชีพ/ประสบการณ์ (แบบหยาบ - เก็บข้อความที่เกี่ยวกับงาน) -----\nif (!state.job && /ทำงาน|รับราชการ|พนักงาน|ธุรกิจส่วนตัว|อาชีพ/.test(text)) {\n  state.job = userMessage;\n}\nif (!state.experience && /ปี|ปีแล้ว|ประสบการณ์/.test(text) && /ทำงาน|ปี/.test(text)) {\n  state.experience = userMessage;\n}\n\nconst infoComplete = !!(state.degree && state.job && state.experience);\n\nreturn [{\n  json: {\n    ...state,\n    infoComplete,\n    userId: $('Webhook').first().json.body.userId\n  }\n}];"
+      },
+      "id": "extractCode1",
+      "name": "Extract Info (Deterministic)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-720, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "leftValue": "={{$json.infoComplete}}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            },
+            {
+              "leftValue": "={{$json.major}}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEquals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "ifComplete1",
+      "name": "IF ข้อมูลครบ + รู้สาขา",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [-480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.7,\n  messages: [\n    { role: 'system', content: 'คุณคือเจ้าหน้าที่รับสมัครนักศึกษา มหาวิทยาลัยพิษณุโลก ลงท้ายด้วยค่ะเสมอ ตอบกระชับสุภาพ\\n\\nหน้าที่: ขอข้อมูล 3 อย่างนี้จากนักศึกษาให้ครบก่อนแนะนำหลักสูตร: วุฒิการศึกษา, อาชีพ, ประสบการณ์ทำงาน\\nข้อมูลที่มีอยู่แล้ว (ห้ามถามซ้ำ): วุฒิ=' + ($json.degree || 'ยังไม่ทราบ') + ', อาชีพ=' + ($json.job || 'ยังไม่ทราบ') + ', ประสบการณ์=' + ($json.experience || 'ยังไม่ทราบ') + ', สาขาที่สนใจ=' + ($json.major || 'ยังไม่ทราบ') + '\\n\\nให้ถามเฉพาะข้อมูลที่ยังขาดเท่านั้น ห้ามแจ้งรายละเอียดค่าเทอม/ระยะเวลาเรียนจนกว่าข้อมูลจะครบ' },\n    ...$json.history\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "openaiAsk1",
+      "name": "AI - ขอข้อมูลที่ขาด",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-240, 460],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.7,\n  messages: [\n    { role: 'system', content: 'คุณคือเจ้าหน้าที่รับสมัครนักศึกษา มหาวิทยาลัยพิษณุโลก ลงท้ายด้วยค่ะเสมอ\\n\\nนักศึกษาสนใจสาขา: ' + $json.major + '\\nวุฒิ: ' + $json.degree + ' | อาชีพ: ' + $json.job + ' | ประสบการณ์: ' + $json.experience + '\\n\\nข้อมูลค่าเทอมอ้างอิง (ใช้ตอบเท่านั้น ห้ามมั่ว):\\n- นิติศาสตร์: เทียบโอนได้ เรียนประมาณ 2 ปี ปกติค่าเทอม 130,000 บาท มีทุนส่วนลดสำหรับวัยทำงานเหลือ 90,000 บาทตลอดหลักสูตร ผ่อนชำระได้\\n- บัญชี หรือ รัฐประศาสนศาสตร์: เทียบโอนได้ เรียนประมาณ 2 ปี ค่าเทอมตลอดหลักสูตร 130,000 บาท ผ่อนชำระได้\\n\\nให้สรุปรายละเอียดสาขาที่นักศึกษาสนใจแบบกระชับ ชวนให้สมัคร' },\n    ...$json.history\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "openaiDetail1",
+      "name": "AI - แจ้งรายละเอียดสาขา",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-240, 140],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $input.first().json;\nconst answer = incoming.choices[0].message.content;\n\n// ดึง state ที่ส่งเข้ามาจาก node ก่อนหน้า (ผ่าน expression binding ของ IF)\nconst state = $('Extract Info (Deterministic)').first().json;\nstate.history.push({ role: 'assistant', content: answer });\n\nreturn [{ json: { ...state, answer } }];"
+      },
+      "id": "mergeAsk1",
+      "name": "Merge Answer (ask path)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $input.first().json;\nconst answer = incoming.choices[0].message.content;\nconst state = $('Extract Info (Deterministic)').first().json;\nstate.history.push({ role: 'assistant', content: answer });\nreturn [{ json: { ...state, answer } }];"
+      },
+      "id": "mergeDetail1",
+      "name": "Merge Answer (detail path)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [0, 140]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=n8n:phitsanulok:{{$json.userId}}",
+        "value": "={{ JSON.stringify({history: $json.history, degree: $json.degree, job: $json.job, experience: $json.experience, major: $json.major}) }}",
+        "expire": true,
+        "ttl": 2592000
+      },
+      "id": "redisSet1",
+      "name": "Redis Save State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "credentials": {
+        "redis": {
+          "id": "REPLACE_WITH_YOUR_REDIS_CREDENTIAL_ID",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { answer: $json.answer } }}",
+        "options": {}
+      },
+      "id": "respond1",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [480, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Redis Get State", "type": "main", "index": 0 }]] },
+    "Redis Get State": { "main": [[{ "node": "Extract Info (Deterministic)", "type": "main", "index": 0 }]] },
+    "Extract Info (Deterministic)": { "main": [[{ "node": "IF ข้อมูลครบ + รู้สาขา", "type": "main", "index": 0 }]] },
+    "IF ข้อมูลครบ + รู้สาขา": {
+      "main": [
+        [{ "node": "AI - แจ้งรายละเอียดสาขา", "type": "main", "index": 0 }],
+        [{ "node": "AI - ขอข้อมูลที่ขาด", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI - ขอข้อมูลที่ขาด": { "main": [[{ "node": "Merge Answer (ask path)", "type": "main", "index": 0 }]] },
+    "AI - แจ้งรายละเอียดสาขา": { "main": [[{ "node": "Merge Answer (detail path)", "type": "main", "index": 0 }]] },
+    "Merge Answer (ask path)": { "main": [[{ "node": "Redis Save State", "type": "main", "index": 0 }]] },
+    "Merge Answer (detail path)": { "main": [[{ "node": "Redis Save State", "type": "main", "index": 0 }]] },
+    "Redis Save State": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" }
+}

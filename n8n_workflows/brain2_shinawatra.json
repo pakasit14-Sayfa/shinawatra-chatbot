@@ -1,0 +1,113 @@
+{
+  "name": "Brain 2 - Shinawatra University",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "shinawatra-brain",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook2",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1200, 300],
+      "webhookId": "shinawatra-brain"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "stateRaw",
+        "key": "=n8n:shinawatra:{{$json.body.userId}}"
+      },
+      "id": "redisGet2",
+      "name": "Redis Get State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [-960, 300],
+      "credentials": {
+        "redis": { "id": "6E4f36VbPUmo86lv", "name": "Redis - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let state;\ntry { state = JSON.parse($input.first().json.stateRaw || '{}'); } catch (e) { state = {}; }\nstate.history = state.history || [];\nstate.major = state.major || null; // RN, PN, HR, Engineering, EdAdminMaster, GradDip\nstate.degree = state.degree || null;\nstate.grade = state.grade || null;\nstate.track = state.track || null;\nstate.age = state.age || null;\nstate.weight = state.weight || null;\nstate.height = state.height || null;\nstate.govOrPrivate = state.govOrPrivate || null;\nstate.detailGiven = state.detailGiven || false;\nstate.wantsAdmin = false;\n\nconst webhookBody = $('Webhook').first().json.body;\nconst userId = webhookBody.userId;\nconst channel = webhookBody.channel || 'general'; // 'general' หรือ 'nursing' ส่งมาจาก server.js\nconst rawMessage = webhookBody.message || '';\nstate.history.push({ role: 'user', content: rawMessage });\n\nconst text = rawMessage.toLowerCase();\nconst numbers = (rawMessage.match(/\\d+(\\.\\d+)?/g) || []).map(Number);\n\n// ----- กฎช่องทาง: ห้ามพูดพยาบาลในเพจทั่วไป / ห้ามพูดสาขาอื่นในเพจพยาบาล -----\nconst channelBlocked = (channel === 'general' && (text.includes('พยาบาล')))\n  || (channel === 'nursing' && state.major && !['RN','PN'].includes(state.major));\n\n// ----- ตรวจคำตอบรับสั้นๆ หลังจากให้รายละเอียดคอร์สไปแล้ว -----\nconst confirmWords = ['สนใจ', 'ใช่', 'ตกลง', 'โอเค', 'เอาเลย', 'ครับสนใจ', 'อยากสมัคร', 'สมัคร'];\nif (state.detailGiven && confirmWords.some(w => text.includes(w))) {\n  state.wantsAdmin = true;\n}\n\n// ----- ดึงสาขาที่สนใจ (deterministic) -----\nif (!state.major && !channelBlocked) {\n  if (channel === 'nursing' || text.includes('พยาบาล')) {\n    if (text.includes('ผู้ช่วย') || /\\bpn\\b/.test(text)) state.major = 'PN';\n    else if (/\\brn\\b/.test(text) || text.includes('พยาบาลศาสตร์')) state.major = 'RN';\n    // ถ้าพิมพ์ \"พยาบาล\" ลอยๆ ไม่ระบุ ให้รอถามก่อน (major ยังเป็น null)\n  } else if (text.includes('ทรัพยากรมนุษย์') || /\\bhr\\b/.test(text)) {\n    state.major = 'HR';\n  } else if (text.includes('วิศว')) {\n    state.major = 'Engineering';\n  } else if (text.includes('บริหารการศึกษา') || text.includes('ป.โท')) {\n    state.major = 'EdAdminMaster';\n  } else if (text.includes('ป.บัณฑิต') || text.includes('บัณฑิตวิชาชีพครู')) {\n    state.major = 'GradDip';\n  }\n}\n\n// ----- ดึงวุฒิการศึกษา -----\nif (!state.degree) {\n  if (/ม\\.?6|มัธยมศึกษาปีที่\\s*6|มัธยมปลาย/.test(text)) state.degree = 'ม.6';\n  else if (/ปวช/.test(text)) state.degree = 'ปวช.';\n  else if (/ปวส/.test(text)) state.degree = 'ปวส.';\n  else if (/ป\\.?ตรี|ปริญญาตรี|bachelor/.test(text)) state.degree = 'ปริญญาตรี';\n}\n\n// ----- เฉพาะ RN: เกรด/สาย/อายุ/น้ำหนัก/ส่วนสูง -----\nif (state.major === 'RN') {\n  if (!state.track) {\n    if (/วิทย์|วิทยาศาสตร์/.test(text)) state.track = 'วิทย์-คณิต';\n    else if (/สังคม|ศิลป์|ภาษา|ศิลภาษา/.test(text)) state.track = 'สายอื่นๆ';\n  }\n  // เกรด: ตัวเลขทศนิยม 1-4\n  if (state.grade === null) {\n    const g = numbers.find(n => n >= 0 && n <= 4 && /\\d\\.\\d/.test(String(n)));\n    if (g !== undefined) state.grade = g;\n  }\n  if (state.age === null) {\n    const a = numbers.find(n => n >= 10 && n <= 60 && Number.isInteger(n));\n    if (a !== undefined) state.age = a;\n  }\n  if (state.weight === null) {\n    const w = numbers.find(n => n >= 30 && n <= 150);\n    if (w !== undefined) state.weight = w;\n  }\n  if (state.height === null) {\n    const h = numbers.find(n => n >= 140 && n <= 210);\n    if (h !== undefined) state.height = h;\n  }\n}\n\n// ----- เฉพาะ HR: ที่ทำงานรัฐ/เอกชน -----\nif (state.major === 'HR' && !state.govOrPrivate) {\n  if (/รัฐ|ราชการ|รัฐวิสาหกิจ/.test(text)) state.govOrPrivate = 'รัฐ';\n  else if (/เอกชน|บริษัท/.test(text)) state.govOrPrivate = 'เอกชน';\n}\n\n// ----- เช็คว่าข้อมูลครบหรือยังตาม major -----\nfunction infoCompleteFor(major) {\n  if (major === 'RN') return state.degree && state.grade !== null && state.track && state.age !== null && state.weight !== null && state.height !== null;\n  if (major === 'PN') return !!state.degree;\n  if (major === 'HR') return state.degree && state.govOrPrivate;\n  if (['Engineering', 'EdAdminMaster', 'GradDip'].includes(major)) return !!state.degree;\n  return false;\n}\nconst infoComplete = state.major ? infoCompleteFor(state.major) : false;\n\n// ----- ถ้าครบแล้วและเป็น RN ให้คำนวณเกณฑ์แบบ deterministic -----\nlet rnEligible = null;\nlet rnFailReasons = [];\nif (state.major === 'RN' && infoComplete) {\n  const heightM = state.height / 100;\n  const bmi = state.weight / (heightM * heightM);\n  const gradeMin = state.track === 'วิทย์-คณิต' ? 2.00 : 2.50;\n  if (!(bmi >= 17.5 && bmi <= 30)) rnFailReasons.push('BMI');\n  if (!(state.height >= 150)) rnFailReasons.push('ส่วนสูง');\n  if (!(state.weight >= 40)) rnFailReasons.push('น้ำหนัก');\n  if (!(state.age >= 16 && state.age <= 30)) rnFailReasons.push('อายุ');\n  if (!(state.grade >= gradeMin)) rnFailReasons.push('เกรดเฉลี่ย');\n  rnEligible = rnFailReasons.length === 0;\n}\n\nif (infoComplete) state.detailGiven = true;\n\nreturn [{\n  json: {\n    ...state,\n    userId,\n    channel,\n    channelBlocked,\n    infoComplete,\n    rnEligible,\n    rnFailReasons\n  }\n}];"
+      },
+      "id": "extractCode2",
+      "name": "Extract Info (Deterministic)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-720, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'gpt-4o-mini',\n  temperature: 0.5,\n  messages: [\n    { role: 'system', content: (function(){\n      const j = $json;\n      let facts = '';\n      if (j.channelBlocked) {\n        facts = 'ลูกค้าถามเรื่องที่ช่องทางนี้ตอบไม่ได้ (เพจทั่วไปห้ามพูดพยาบาล หรือเพจพยาบาลห้ามพูดสาขาอื่น) ให้แนะนำไปเพจที่ถูกต้องอย่างสุภาพสั้นๆ ห้ามถามข้อมูลอะไรต่อ';\n      } else if (j.wantsAdmin) {\n        facts = 'ลูกค้าตอบรับสนใจสมัครแล้วหลังจากได้รับรายละเอียดคอร์ส ให้ตอบรับสั้นๆ ว่าจะให้เจ้าหน้าที่ติดต่อนัดหมายต่อ แจ้งเบอร์ 082-383-0243 และ Line: @siu.admission';\n      } else if (!j.major) {\n        facts = 'ยังไม่ทราบว่าลูกค้าสนใจสาขาไหน ให้ทักทายสั้นๆ แล้วถามว่าสนใจหลักสูตรไหนคะ (เลือกได้: พยาบาลศาสตร์ RN, ผู้ช่วยพยาบาล PN, ทรัพยากรมนุษย์ HR, วิศวกรรมศาสตร์, ป.โทบริหารการศึกษา, ป.บัณฑิตวิชาชีพครู) ห้ามพูดถึงพยาบาลถ้าเป็นเพจทั่วไป';\n      } else if (!j.infoComplete) {\n        const need = {\n          RN: 'วุฒิการศึกษา, เกรดเฉลี่ย, สายการเรียน, อายุ, น้ำหนัก(กก.), ส่วนสูง(ซม.)',\n          PN: 'วุฒิการศึกษา',\n          HR: 'วุฒิการศึกษา และปัจจุบันทำงานหน่วยงานรัฐหรือเอกชน',\n          Engineering: 'วุฒิการศึกษา',\n          EdAdminMaster: 'วุฒิการศึกษา (ต้องมีใบประกอบวิชาชีพครู)',\n          GradDip: 'วุฒิการศึกษา และทำงานเป็นครูในโรงเรียนเครือ สพฐ. หรือไม่'\n        }[j.major];\n        facts = 'สาขาที่ลูกค้าสนใจ: ' + j.major + '. ข้อมูลที่มีแล้ว (ห้ามถามซ้ำ): วุฒิ=' + (j.degree||'-') + ' เกรด=' + (j.grade??'-') + ' สาย=' + (j.track||'-') + ' อายุ=' + (j.age??'-') + ' น้ำหนัก=' + (j.weight??'-') + ' ส่วนสูง=' + (j.height??'-') + '. ให้ถามเฉพาะข้อมูลที่ยังขาดจากรายการนี้เท่านั้น: ' + need;\n      } else if (j.major === 'RN') {\n        facts = j.rnEligible\n          ? 'ลูกค้าผ่านเกณฑ์เบื้องต้นสำหรับ RN (พยาบาลศาสตร์ 4 ปี, ค่าเทอมตลอดหลักสูตร 700,000 บาท, กู้ กยศ.ได้) ให้แจ้งว่าผ่านเกณฑ์เบื้องต้นค่ะ พร้อมแนะนำขั้นตอนสมัคร แล้วถามว่าสนใจนัดหมายไหมคะ'\n          : 'ลูกค้าไม่ผ่านเกณฑ์ RN เนื่องจาก: ' + j.rnFailReasons.join(', ') + ' ให้แจ้งสุภาพว่าไม่ผ่านเกณฑ์ข้อไหน และแนะนำพิจารณาหลักสูตรผู้ช่วยพยาบาล (PN) แทน';\n      } else if (j.major === 'PN') {\n        facts = 'PN (ผู้ช่วยพยาบาล 1 ปี, ภาคปกติจันทร์-ศุกร์/ปทุมธานี หรือภาคพิเศษเสาร์-อาทิตย์/อโศก, กู้ กยศ.ได้ 50,000 บาท) ไม่มีเกณฑ์ BMI/ส่วนสูง/น้ำหนัก/อายุ ให้สรุปข้อมูลคอร์สแล้วถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.major === 'HR') {\n        const fee = j.govOrPrivate === 'รัฐ' ? '18,750 บาท/เทอม (มีทุนส่วนลด 25% จากปกติ 30,000 บาท)' : '25,000 บาท/เทอม (มีทุนส่วนลดจากปกติ 30,000 บาท)';\n        facts = 'HR (เรียนออนไลน์วันอาทิตย์ Block course, เทียบโอนได้) ลูกค้าทำงาน ' + j.govOrPrivate + ' ค่าเทอม ' + fee + ' ผ่อนชำระรายเดือนได้ ให้สรุปแล้วถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.major === 'Engineering') {\n        facts = 'วิศวกรรมศาสตร์ (เครื่องกล+ความปลอดภัย, ได้ใบ กว. และ จป., เรียนออนไลน์+ออนไซต์) วุฒิลูกค้า=' + j.degree + ' ถ้าเป็น ปวส. เทียบโอนได้เรียน 2 ปี ค่าเทอมเหมา 150,000 บาท / ถ้า ม.6/ปวช. เรียน 4 ปี ค่าเทอม 280,000 บาท ให้สรุปแล้วถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.major === 'EdAdminMaster') {\n        facts = 'ป.โทบริหารการศึกษา (เรียนวันอาทิตย์ 2 ปี, ค่าเทอม 150,000 บาท แบ่ง 7 งวด, ค่าสมัคร 1,500 บาท, ต้องมีใบประกอบวิชาชีพครู) ให้สรุปแล้วถามว่ามีใบประกอบวิชาชีพครูหรือยัง และถามว่าสนใจนัดหมายไหมคะ';\n      } else if (j.major === 'GradDip') {\n        facts = 'ป.บัณฑิตวิชาชีพครู (เรียน 1.5 ปี ออนไลน์เป็นหลัก, ค่าใช้จ่าย 54,000 บาทผ่อนได้, ค่าสมัคร 1,500 บาท, ต้องเป็นครูในโรงเรียนเครือ สพฐ.) ให้สรุปแล้วถามว่าสนใจนัดหมายไหมคะ';\n      }\n      return 'คุณคือเจ้าหน้าที่/อาจารย์ฝ่ายรับสมัคร มหาวิทยาลัยชินวัตร พูดสุภาพ ลงท้ายด้วย \"ค่ะ\" เสมอ ห้ามใช้ \"ครับ\" ตอบกระชับเป็นธรรมชาติ ห้ามพิมพ์ตัวเลข/ราคาที่ไม่ได้ให้มาในข้อมูลนี้เอง\\n\\nข้อมูลที่ต้องใช้ตอบ (ห้ามมั่ว ใช้ตามนี้เท่านั้น): ' + facts;\n    })() },\n    ...$json.history\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "openaiReply2",
+      "name": "AI - Generate Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-480, 300],
+      "credentials": {
+        "httpHeaderAuth": { "id": "eoikRoa7Qb4pyyxv", "name": "OpenAI Header Auth - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $input.first().json;\nconst answer = incoming.choices[0].message.content;\nconst state = $('Extract Info (Deterministic)').first().json;\nstate.history.push({ role: 'assistant', content: answer });\nreturn [{ json: { ...state, answer } }];"
+      },
+      "id": "mergeAnswer2",
+      "name": "Merge Answer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=n8n:shinawatra:{{$json.userId}}",
+        "value": "={{ JSON.stringify({history: $json.history, major: $json.major, degree: $json.degree, grade: $json.grade, track: $json.track, age: $json.age, weight: $json.weight, height: $json.height, govOrPrivate: $json.govOrPrivate, detailGiven: $json.detailGiven}) }}",
+        "expire": true,
+        "ttl": 2592000
+      },
+      "id": "redisSet2",
+      "name": "Redis Save State",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [0, 300],
+      "credentials": {
+        "redis": { "id": "6E4f36VbPUmo86lv", "name": "Redis - Chatbot Brain" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { answer: $json.answer } }}",
+        "options": {}
+      },
+      "id": "respond2",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": { "main": [[{ "node": "Redis Get State", "type": "main", "index": 0 }]] },
+    "Redis Get State": { "main": [[{ "node": "Extract Info (Deterministic)", "type": "main", "index": 0 }]] },
+    "Extract Info (Deterministic)": { "main": [[{ "node": "AI - Generate Reply", "type": "main", "index": 0 }]] },
+    "AI - Generate Reply": { "main": [[{ "node": "Merge Answer", "type": "main", "index": 0 }]] },
+    "Merge Answer": { "main": [[{ "node": "Redis Save State", "type": "main", "index": 0 }]] },
+    "Redis Save State": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": {}
+}
