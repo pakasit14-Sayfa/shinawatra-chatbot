@@ -21,6 +21,7 @@ const extractCode = [
   "state.eduDetailGiven = state.eduDetailGiven || false;",
   "state.gradDipDetailGiven = state.gradDipDetailGiven || false;",
   "state.engineeringDetailGiven = state.engineeringDetailGiven || false;",
+  "state.hrDetailGiven = state.hrDetailGiven || false;",
   "state.conversationEnded = state.conversationEnded || false;",
   "state.detailGiven = state.detailGiven || false;",
   "state.wantsAdmin = false;",
@@ -143,7 +144,8 @@ const extractCode = [
   "}",
   "",
   "// ----- เฉพาะ Engineering: เลือกหลักสูตร (เครื่องกล/ความปลอดภัย/2ปริญญา) -----",
-  "if (state.major === 'Engineering' && !state.engineeringType) {",
+  "// !hasQuestionMarker กันลูกค้าถามคำถามเปรียบเทียบ (เช่น \"เครื่องกลกับความปลอดภัยต่างกันยังไง\") แล้วระบบเข้าใจผิดว่าเลือกหลักสูตรนั้นไปเอง",
+  "if (state.major === 'Engineering' && !state.engineeringType && !hasQuestionMarker) {",
   "  const hasMech = /เครื่องกล/.test(text);",
   "  const hasSafety = /ความปลอดภัย/.test(text);",
   "  if (hasMech && hasSafety) state.engineeringType = '2ปริญญา';",
@@ -153,20 +155,20 @@ const extractCode = [
   "}",
   "",
   "// ----- เฉพาะ HR: ที่ทำงานรัฐ/เอกชน -----",
-  "if (state.major === 'HR' && !state.govOrPrivate) {",
+  "if (state.major === 'HR' && !state.govOrPrivate && !hasQuestionMarker) {",
   "  if (/รัฐ|ราชการ|รัฐวิสาหกิจ/.test(text)) state.govOrPrivate = 'รัฐ';",
   "  else if (/เอกชน|บริษัท/.test(text)) state.govOrPrivate = 'เอกชน';",
   "}",
   "",
   "// ----- เฉพาะ GradDip: เป็นครูเครือ สพฐ. หรือไม่ -----",
-  "if (state.major === 'GradDip' && state.isSpobTeacher === null) {",
+  "if (state.major === 'GradDip' && state.isSpobTeacher === null && !hasQuestionMarker) {",
   "  if (/ไม่ใช่|ไม่ได้เป็น|ไม่มี/.test(text)) state.isSpobTeacher = false;",
   "  else if (/เป็นครู|ใช่|สพฐ/.test(text)) state.isSpobTeacher = true;",
   "}",
   "if (state.major === 'GradDip' && state.isSpobTeacher === false) state.conversationEnded = true;",
   "",
   "// ----- เฉพาะ EdAdminMaster: มีใบประกอบวิชาชีพครูหรือไม่ (เงื่อนไขจำเป็นจริงตามที่แอดมินคัดกรอง) -----",
-  "if (state.major === 'EdAdminMaster' && state.eduHasLicense === null) {",
+  "if (state.major === 'EdAdminMaster' && state.eduHasLicense === null && !hasQuestionMarker) {",
   "  if (/ไม่มี|ยังไม่มี|ไม่ได้มี/.test(text)) state.eduHasLicense = false;",
   "  else if (/มีแล้ว|มีค่ะ|มีครับ|^มี\\b|มีใบ/.test(text)) state.eduHasLicense = true;",
   "}",
@@ -268,6 +270,13 @@ const extractCode = [
   "    : 'เครื่องกลรับรองจากสภาวิศวกร ได้สิทธิ์สอบ กว. และความปลอดภัยรับรองจากกรมสวัสดิการและคุ้มครองแรงงาน ได้ใบประกอบวิชาชีพ จป.เลยไม่ต้องสอบเพิ่ม');",
   "  state.forcedAnswer = 'อาจารย์ขอสรุปรายละเอียดหลักสูตรวิศวกรรมศาสตร์ ' + state.engineeringType + ' ให้นะคะ\\n📍 รูปแบบเรียน: ออนไลน์+ออนไซต์ วันธรรมดาภาคค่ำ 19:00-21:00 ไม่ทุกวัน และวันอาทิตย์เต็มวันออนไลน์ เข้ามหาวิทยาลัยน้อยมาก\\n🎓 การรับรอง: ' + certLine + '\\n===\\n![ตารางค่าเทอมวิศวกรรมศาสตร์ ' + state.engineeringType + '](' + engImg + ')\\n===\\nนักศึกษาสนใจสมัครเลยไหมคะ';",
   "  state.engineeringDetailGiven = true;",
+  "}",
+  "",
+  "// ให้รายละเอียดคอร์ส HR (การจัดการทรัพยากรมนุษย์) แบบตายตัว จัดบรรทัดด้วยอีโมจิหมวด (สไตล์เดียวกับสาขาอื่น)",
+  "if (state.major === 'HR' && infoComplete && !state.hrDetailGiven) {",
+  "  const hrFee = state.govOrPrivate === 'รัฐ' ? '18,750 บาท/เทอม (มี 2 ทุนรวมกัน: ทุนลด 5,000 บาท และทุนลด 25% จากปกติ 30,000 บาท)' : '25,000 บาท/เทอม (มีทุนส่วนลด 5,000 บาท จากปกติ 30,000 บาท)';",
+  "  state.forcedAnswer = 'อาจารย์ขอสรุปรายละเอียดหลักสูตรการจัดการทรัพยากรมนุษย์ (HRM) ให้นะคะ\\n📍 รูปแบบเรียน: ออนไลน์วันอาทิตย์ (Block course)\\n🎓 เทียบโอนได้: สายบริหารธุรกิจเหลือเรียนประมาณ 1.5 ปี\\n💰 ค่าเทอม: ' + hrFee + ' ผ่อนชำระรายเดือนได้\\nนักศึกษาสนใจสมัครเลยไหมคะ';",
+  "  state.hrDetailGiven = true;",
   "}",
   "",
   "if (infoComplete) state.detailGiven = true;",
@@ -382,7 +391,7 @@ mergeNode.parameters.jsCode = [
 ].join('\n');
 
 const saveNode = wf.nodes.find(n => n.name === 'Redis Save State');
-saveNode.parameters.value = "={{ JSON.stringify({history: $json.history, major: $json.major, degree: $json.degree, job: $json.job, experience: $json.experience, grade: $json.grade, track: $json.track, age: $json.age, weight: $json.weight, height: $json.height, govOrPrivate: $json.govOrPrivate, pnTrack: $json.pnTrack, engineeringType: $json.engineeringType, isSpobTeacher: $json.isSpobTeacher, eduHasLicense: $json.eduHasLicense, conversationEnded: $json.conversationEnded, detailGiven: $json.detailGiven, pnDetailGiven: $json.pnDetailGiven, eduDetailGiven: $json.eduDetailGiven, gradDipDetailGiven: $json.gradDipDetailGiven, engineeringDetailGiven: $json.engineeringDetailGiven}) }}";
+saveNode.parameters.value = "={{ JSON.stringify({history: $json.history, major: $json.major, degree: $json.degree, job: $json.job, experience: $json.experience, grade: $json.grade, track: $json.track, age: $json.age, weight: $json.weight, height: $json.height, govOrPrivate: $json.govOrPrivate, pnTrack: $json.pnTrack, engineeringType: $json.engineeringType, isSpobTeacher: $json.isSpobTeacher, eduHasLicense: $json.eduHasLicense, conversationEnded: $json.conversationEnded, detailGiven: $json.detailGiven, pnDetailGiven: $json.pnDetailGiven, eduDetailGiven: $json.eduDetailGiven, gradDipDetailGiven: $json.gradDipDetailGiven, engineeringDetailGiven: $json.engineeringDetailGiven, hrDetailGiven: $json.hrDetailGiven}) }}";
 
 const payload = { name: wf.name, nodes: wf.nodes, connections: wf.connections, settings: {} };
 fs.writeFileSync('brain2_updated.json', JSON.stringify(payload));
