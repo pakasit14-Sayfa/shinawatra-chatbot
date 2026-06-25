@@ -75,7 +75,7 @@ const extractCode = [
   "    } else if (looksLikePN) { state.major = 'PN'; }",
   "    else if (looksLikeRN) { state.major = 'RN'; }",
   "    // ถ้าพิมพ์ \"พยาบาล\" ลอยๆ ไม่ระบุ ให้รอถามก่อน (major ยังเป็น null)",
-  "  } else if (text.includes('ทรัพยากรมนุษย์') || /\\bhr\\b/.test(text)) {",
+  "  } else if (text.includes('ทรัพยากรมนุษย์') || text.includes('การจัดการ') || /\\bhr\\b/.test(text)) {",
   "    state.major = 'HR';",
   "  } else if (text.includes('วิศว') || text.includes('เครื่องกล') || text.includes('ความปลอดภัย') || /2\\s*ปริญญา|สองปริญญา/.test(text)) {",
   "    state.major = 'Engineering';",
