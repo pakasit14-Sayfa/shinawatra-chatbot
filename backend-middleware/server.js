@@ -7,7 +7,39 @@ dotenv.config();
 
 const { deliverMessage, buildLineMessages, isBotsOwnEcho } = require('./message-delivery');
 const { handleIncoming } = require('./message-queue');
-const { alertAdmin } = require('./alert');
+const { alertAdmin, alertCantAnswer } = require('./alert');
+
+// ----- ตรวจจับว่า AI ตอบคำถามลูกค้าไม่ได้ (deflect ไปแอดมินจริง) แล้วแจ้งเข้ากลุ่ม Telegram ของเพจนั้น -----
+// Brain 2 (n8n): ใช้ forcedAnswer ข้อความตายตัวนี้เป๊ะๆเวลา offTopic
+// Brain 1 (n8n) / Brain 3 (Dify): ใช้ Tag [ติดต่อแอดมิน] ที่มีอยู่แล้วในระบบ (ถูก strip ออกตอนส่งจริงใน message-delivery.js)
+const CANT_ANSWER_PHRASE = 'เดี๋ยวอาจารย์ติดต่อไปให้ข้อมูลเพิ่มเติมนะคะ';
+function looksLikeCantAnswer(answerText) {
+    if (!answerText) return false;
+    return answerText.includes(CANT_ANSWER_PHRASE) || answerText.includes('[ติดต่อแอดมิน]');
+}
+
+// แปลง tenantConfig ของแต่ละเพจ -> กลุ่ม Telegram ปลายทาง (page1/page2/page3/china)
+function getCantAnswerPageGroup(tenantConfig) {
+    if (!tenantConfig) return null;
+    if (tenantConfig.campus === 'Project_1') return 'page1';
+    if (tenantConfig.campus === 'Project_3') return 'china';
+    if (tenantConfig.campus === 'Project_2') {
+        return tenantConfig.pageType === 'nursing' ? 'page3' : 'page2'; // 'general'/'combined' ไปเพจทั่วไปเป็นค่า default
+    }
+    return null;
+}
+
+function notifyCantAnswer(userId, platform, userMessage, answerText, tenantConfig) {
+    if (!looksLikeCantAnswer(answerText)) return;
+    const pageGroup = getCantAnswerPageGroup(tenantConfig);
+    if (!pageGroup) return;
+    const pageName = tenantConfig.pageName || tenantConfig.campus;
+    alertCantAnswer(
+        `❓ AI ตอบไม่ได้ (${pageName})\nลูกค้า: ${platform}:${userId}\nคำถาม: ${userMessage}`,
+        pageGroup,
+        `cantanswer-${platform}-${userId}`
+    );
+}
 const { lockChat, unlockChat, isLocked, isUnlockCommand, isLockCommand } = require('./Handoff');
 const { trackUser, getActiveUsers } = require('./ActiveUsers');
 const { getTenantConfig } = require('./config');
@@ -461,6 +493,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
     if (shouldUseN8n(tenantConfig)) {
         try {
             const n8nAnswer = await sendToN8nBrain(userId, userMessage, tenantConfig);
+            notifyCantAnswer(userId, platform, userMessage, n8nAnswer, tenantConfig);
             return n8nAnswer;
         } catch (error) {
             console.error('[n8n Brain Error]', error.response?.data || error.message);
@@ -539,6 +572,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
             console.error('[Dify Error] Received empty answer from Dify');
             return 'ขออภัยค่ะ ระบบประมวลผลคำตอบขัดข้องชั่วคราว กรุณารอสักครู่นะคะ หรือพิมพ์ "ติดต่อแอดมิน" ได้เลยค่ะ';
         }
+        notifyCantAnswer(userId, platform, userMessage, data.answer, tenantConfig);
         return data.answer;
     } catch (error) {
         console.error(`[Dify Error]`, error.response?.data || error.message);
