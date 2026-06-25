@@ -172,7 +172,8 @@ async function main() {
       const lines = failed.map((f) => `- ${f.name}\n  คำตอบ: ${(f.lastAnswer || f.error || '').slice(0, 200)}`);
       await alertAdmin(
         `🧪 Brain 2 Regression Test: ผ่าน ${summary.passed}/${summary.total}\n\n` + lines.join('\n\n'),
-        `regression-test-${Date.now()}` // unique key กันโดน throttle ทับ
+        `regression-test-${Date.now()}`, // unique key กันโดน throttle ทับ
+        'Project_2' // ส่งเข้ากลุ่ม Telegram ของ Brain 2 โดยเฉพาะ
       );
     } catch (e) {
       console.log('[regression_test] ส่ง Telegram ไม่ได้ (ยังไม่ได้ตั้งค่า TELEGRAM_BOT_TOKEN/CHAT_ID):', e.message);

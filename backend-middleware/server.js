@@ -443,7 +443,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
     // ----- เช็คว่าเคยสมัครไปแล้วหรือยัง (ไม่ถูกล้างด้วย "เริ่มใหม่") -----
     if (await isAppliedAlready(userKey)) {
         console.log(`[Applied] ${userKey} เคยสมัครไปแล้ว - ไม่เริ่ม flow ใหม่`);
-        alertAdmin(`📋 ลูกค้าที่เคยสมัครแล้วทักกลับมา: ${userKey}\nข้อความ: ${userMessage}`, `applied-${userKey}`);
+        alertAdmin(`📋 ลูกค้าที่เคยสมัครแล้วทักกลับมา: ${userKey}\nข้อความ: ${userMessage}`, `applied-${userKey}`, tenantConfig ? tenantConfig.campus : null);
         return 'รับทราบค่ะนักศึกษา อาจารย์ดำเนินการติดต่อแอดมินที่ดูแลและตรวจสอบข้อมูลการสมัครให้นะคะ';
     }
 
@@ -453,7 +453,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
         const control = await getBotControl(campus);
         if (!control.enabled || !isWithinSchedule(control)) {
             console.log(`[Bot Off] ${campus} ปิดบอทอยู่ (enabled=${control.enabled}, schedule=${control.scheduleEnabled})`);
-            alertAdmin(`🔴 บอทปิดอยู่ มีลูกค้าทักเข้ามา: ${userKey}\nข้อความ: ${userMessage}`, `botoff-${campus}`);
+            alertAdmin(`🔴 บอทปิดอยู่ มีลูกค้าทักเข้ามา: ${userKey}\nข้อความ: ${userMessage}`, `botoff-${campus}`, campus);
             return OFF_HOURS_MESSAGE;
         }
     }
@@ -464,7 +464,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
             return n8nAnswer;
         } catch (error) {
             console.error('[n8n Brain Error]', error.response?.data || error.message);
-            alertAdmin(`🔴 n8n Brain ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.message}`, 'n8n-error');
+            alertAdmin(`🔴 n8n Brain ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.message}`, 'n8n-error', campus);
             throw error;
         }
     }
@@ -542,7 +542,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
         return data.answer;
     } catch (error) {
         console.error(`[Dify Error]`, error.response?.data || error.message);
-        alertAdmin(`🔴 Dify ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.response?.data?.message || error.message}`, 'dify-error');
+        alertAdmin(`🔴 Dify ตอบไม่ได้ ลูกค้าอาจไม่ได้รับคำตอบ\nสาเหตุ: ${error.response?.data?.message || error.message}`, 'dify-error', campus);
         throw error;
     }
 }
@@ -664,7 +664,7 @@ app.post('/webhook/line/:campus', limiter, async (req, res) => {
                         const validation = validateContact(rawDifyAnswer, combinedText);
 
                         if (validation.isLeak) {
-                            alertAdmin(`🚨 สกัดเบอร์โทรหลุด!\nเบอร์: ${validation.foundPhones.join(', ')}\nลูกค้า: ${userId}`, 'contact-leak');
+                            alertAdmin(`🚨 สกัดเบอร์โทรหลุด!\nเบอร์: ${validation.foundPhones.join(', ')}\nลูกค้า: ${userId}`, 'contact-leak', tenantConfig.campus);
                         }
 
                         const difyAnswer = validation.safeMessage;
@@ -698,7 +698,7 @@ app.post('/webhook/line/:campus', limiter, async (req, res) => {
                         console.log(`[LINE] ✅ ส่ง ${messages.length} bubbles สำเร็จ`);
                     } catch (error) {
                         console.error(`[LINE Error]`, error.response?.data || error.message);
-                        alertAdmin(`🔴 ส่งข้อความเข้า LINE ไม่ได้ (อาจ token หมดอายุ/หมดโควต้า)\nสาเหตุ: ${error.response?.data?.message || error.message}`, 'line-send-error');
+                        alertAdmin(`🔴 ส่งข้อความเข้า LINE ไม่ได้ (อาจ token หมดอายุ/หมดโควต้า)\nสาเหตุ: ${error.response?.data?.message || error.message}`, 'line-send-error', tenantConfig.campus);
                     }
                 },
             });
@@ -795,14 +795,14 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                             const validation = validateContact(rawDifyAnswer, combinedText);
 
                             if (validation.isLeak) {
-                                alertAdmin(`🚨 สกัดเบอร์โทรหลุด (Meta)!\nเบอร์: ${validation.foundPhones.join(', ')}`, 'contact-leak');
+                                alertAdmin(`🚨 สกัดเบอร์โทรหลุด (Meta)!\nเบอร์: ${validation.foundPhones.join(', ')}`, 'contact-leak', tenantConfig.campus);
                             }
 
                             const difyAnswer = validation.safeMessage;
                             await db.logChatMessage(session.id, 'bot', difyAnswer);
 
                             await deliverMessage('facebook', userId, difyAnswer, (reason) => {
-                                alertAdmin(`🔴 ส่งข้อความเข้า Facebook ไม่ได้ (อาจ token หมดอายุ)\nสาเหตุ: ${reason}`, 'fb-send-error');
+                                alertAdmin(`🔴 ส่งข้อความเข้า Facebook ไม่ได้ (อาจ token หมดอายุ)\nสาเหตุ: ${reason}`, 'fb-send-error', tenantConfig.campus);
                             }, tenantConfig.fbAccessToken);
                             console.log(`[META] ✅ ต้อนรับลูกค้าจากโฆษณาสำเร็จ`);
                         } catch (error) {
@@ -910,7 +910,7 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                             const validation = validateContact(rawDifyAnswer, combinedText);
 
                             if (validation.isLeak) {
-                                alertAdmin(`🚨 สกัดเบอร์โทรหลุด (Meta)!\nเบอร์: ${validation.foundPhones.join(', ')}`, 'contact-leak');
+                                alertAdmin(`🚨 สกัดเบอร์โทรหลุด (Meta)!\nเบอร์: ${validation.foundPhones.join(', ')}`, 'contact-leak', tenantConfig.campus);
                             }
 
                             const difyAnswer = validation.safeMessage;
@@ -927,7 +927,7 @@ app.post('/webhook/meta', limiter, async (req, res) => {
                             console.log('=============================================\n');
 
                             await deliverMessage('facebook', userId, difyAnswer, (reason) => {
-                                alertAdmin(`🔴 ส่งข้อความเข้า Facebook ไม่ได้ (อาจ token หมดอายุ)\nสาเหตุ: ${reason}`, 'fb-send-error');
+                                alertAdmin(`🔴 ส่งข้อความเข้า Facebook ไม่ได้ (อาจ token หมดอายุ)\nสาเหตุ: ${reason}`, 'fb-send-error', tenantConfig.campus);
                             }, tenantConfig.fbAccessToken);
                             console.log(`[META] ✅ ส่งสำเร็จ`);
                         } catch (error) {
