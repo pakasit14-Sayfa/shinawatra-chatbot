@@ -8,6 +8,7 @@ dotenv.config();
 const { deliverMessage, buildLineMessages, isBotsOwnEcho } = require('./message-delivery');
 const { handleIncoming } = require('./message-queue');
 const { alertAdmin, alertCantAnswer } = require('./alert');
+const { logCantAnswer } = require('./sheets-logger');
 
 // ----- ตรวจจับว่า AI ตอบคำถามลูกค้าไม่ได้ (deflect ไปแอดมินจริง) แล้วแจ้งเข้ากลุ่ม Telegram ของเพจนั้น -----
 // Brain 2 (n8n): ใช้ forcedAnswer ข้อความตายตัวนี้เป๊ะๆเวลา offTopic
@@ -29,16 +30,31 @@ function getCantAnswerPageGroup(tenantConfig) {
     return null;
 }
 
-function notifyCantAnswer(userId, platform, userMessage, answerText, tenantConfig) {
+async function notifyCantAnswer(userId, platform, userMessage, answerText, tenantConfig) {
     if (!looksLikeCantAnswer(answerText)) return;
     const pageGroup = getCantAnswerPageGroup(tenantConfig);
     if (!pageGroup) return;
+
+    let userName = `${platform}:${userId}`;
+    try {
+        const user = await db.prisma.user.findUnique({ where: { platform_user_id: userId } });
+        if (user && user.name) userName = `${user.name} (${platform})`;
+    } catch (e) {}
+
     const pageName = tenantConfig.pageName || tenantConfig.campus;
     alertCantAnswer(
-        `❓ AI ตอบไม่ได้ (${pageName})\nลูกค้า: ${platform}:${userId}\nคำถาม: ${userMessage}`,
+        `❓ AI ตอบไม่ได้ (${pageName})\nลูกค้า: ${userName}\nคำถาม: ${userMessage}`,
         pageGroup,
         `cantanswer-${platform}-${userId}`
     );
+    // เก็บลง Google Sheets ด้วย แยกจาก Telegram (Telegram มี throttle 5 นาที/userId ทำให้บางคำถามตกหาย
+    // ส่วนนี้บันทึกทุกครั้งไม่ throttle เพื่อรวบรวมไปสอน AI เพิ่มได้ครบ)
+    logCantAnswer({
+        campusPage: pageName,
+        customerName: userName,
+        question: userMessage,
+        platform,
+    });
 }
 const { lockChat, unlockChat, isLocked, isUnlockCommand, isLockCommand } = require('./Handoff');
 const { trackUser, getActiveUsers } = require('./ActiveUsers');
@@ -463,6 +479,12 @@ async function markApplied(userKey) {
 async function sendToDify(userId, platform, userMessage, tenantConfig) {
     const userKey = `${platform}:${userId}`;
 
+    let userName = userKey;
+    try {
+        const userObj = await db.prisma.user.findUnique({ where: { platform_user_id: userId } });
+        if (userObj && userObj.name) userName = `${userObj.name} (${platform})`;
+    } catch (e) {}
+
     if (isResetCommand(userMessage)) {
         console.log(`[Reset] ลูกค้า ${userKey} ขอเริ่มแชทใหม่ - ล้าง conversation_id เดิมทิ้ง`);
         await clearConversationId(userKey);
@@ -475,7 +497,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
     // ----- เช็คว่าเคยสมัครไปแล้วหรือยัง (ไม่ถูกล้างด้วย "เริ่มใหม่") -----
     if (await isAppliedAlready(userKey)) {
         console.log(`[Applied] ${userKey} เคยสมัครไปแล้ว - ไม่เริ่ม flow ใหม่`);
-        alertAdmin(`📋 ลูกค้าที่เคยสมัครแล้วทักกลับมา: ${userKey}\nข้อความ: ${userMessage}`, `applied-${userKey}`, tenantConfig ? tenantConfig.campus : null);
+        alertAdmin(`📋 ลูกค้าที่เคยสมัครแล้วทักกลับมา: ${userName}\nข้อความ: ${userMessage}`, `applied-${userKey}`, tenantConfig ? tenantConfig.campus : null);
         return 'รับทราบค่ะนักศึกษา อาจารย์ดำเนินการติดต่อแอดมินที่ดูแลและตรวจสอบข้อมูลการสมัครให้นะคะ';
     }
 
@@ -485,7 +507,7 @@ async function sendToDify(userId, platform, userMessage, tenantConfig) {
         const control = await getBotControl(campus);
         if (!control.enabled || !isWithinSchedule(control)) {
             console.log(`[Bot Off] ${campus} ปิดบอทอยู่ (enabled=${control.enabled}, schedule=${control.scheduleEnabled})`);
-            alertAdmin(`🔴 บอทปิดอยู่ มีลูกค้าทักเข้ามา: ${userKey}\nข้อความ: ${userMessage}`, `botoff-${campus}`, campus);
+            alertAdmin(`🔴 บอทปิดอยู่ มีลูกค้าทักเข้ามา: ${userName}\nข้อความ: ${userMessage}`, `botoff-${campus}`, campus);
             return OFF_HOURS_MESSAGE;
         }
     }
