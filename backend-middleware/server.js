@@ -16,7 +16,9 @@ const { logCantAnswer } = require('./sheets-logger');
 const CANT_ANSWER_PHRASE = 'เดี๋ยวอาจารย์ติดต่อไปให้ข้อมูลเพิ่มเติมนะคะ';
 function looksLikeCantAnswer(answerText) {
     if (!answerText) return false;
-    return answerText.includes(CANT_ANSWER_PHRASE) || answerText.includes('[ติดต่อแอดมิน]');
+    return answerText.includes(CANT_ANSWER_PHRASE) 
+        || answerText.includes('[ติดต่อแอดมิน]')
+        || answerText.includes('ขออภัยที่ไม่สามารถตอบคำถามนี้ได้');
 }
 
 // แปลง tenantConfig ของแต่ละเพจ -> กลุ่ม Telegram ปลายทาง (page1/page2/page3/china)
