@@ -26,7 +26,7 @@ const extractCode = [
   "const numbers = (rawMessage.match(/\\d+/g) || []).map(Number);",
   "// snapshot ก่อนแยกข้อมูล ใช้เช็คทีหลังว่าข้อความนี้ \"ให้ข้อมูลจริง\" หรือแค่ถามคำถามอื่นแทรก (กันบั๊กวนถามข้อมูลซ้ำทั้งที่ลูกค้าถามคำถามอื่นมา)",
   "const fieldsBefore = JSON.stringify({age: state.age, hasBasic: state.hasBasic, beenChina: state.beenChina, city: state.city, university: state.university, duration: state.duration, shanghaiTrack: state.shanghaiTrack});",
-  "const hasQuestionMarker = /ไหม|มั้ย|ม้าย|หรอ|ป่าว|เท่าไหร่|เท่าไร|กี่|ยังไง|อย่างไร|ทำไม|ไหน|เมื่อไหร่|ใช่ไหม|หรือเปล่า|บ้างคะ|บ้างครับ|อะไรบ้าง/.test(text);",
+  "const hasQuestionMarker = /ไหม|มั้ย|ม้าย|หรอ|ป่าว|เท่าไหร่|เท่าไร|กี่|ยังไง|อย่างไร|ทำไม|ไหน|เมื่อไหร่|ใช่ไหม|หรือเปล่า|รึยัง|หรือยัง|บ้างคะ|บ้างครับ|อะไรบ้าง/.test(text);",
   "const isGreetingOnly = /^(สวัสดี|หวัดดี|หัดดี|ดีครับ|ดีค่ะ|hi|hello)/.test(text.trim());",
   "",
   "// ----- บีบเมืองตาม pageType ถ้าเป็นเพจเฉพาะเมือง (เพจรวม/LINE ค่อยถามทีหลัง) -----",
@@ -107,8 +107,11 @@ const extractCode = [
   "const fieldsAfter = JSON.stringify({age: state.age, hasBasic: state.hasBasic, beenChina: state.beenChina, city: state.city, university: state.university, duration: state.duration, shanghaiTrack: state.shanghaiTrack});",
   "const extractedSomethingNew = fieldsBefore !== fieldsAfter;",
   "const offTopic = !state.wantsAdmin && !extractedSomethingNew && !isGreetingOnly && hasQuestionMarker;",
+  "// เคสผสม: ข้อความเดียวกันทั้งตอบข้อมูลสำเร็จ (เช่น แจ้งอายุ) และมีคำถามแทรกซ้อนอยู่ด้วย (เช่น \"...อายุ 18 ค่ะ แล้วตั๋วเครื่องบินเต็มรึยังคะ\")",
+  "// ต้องตอบตามข้อมูลที่ได้ตามปกติ แต่ห้ามปล่อยให้คำถามแทรกหลุดไปเงียบๆ ต้องแจ้งส่งต่อแอดมินเรื่องนั้นด้วย",
+  "const mixedIntent = !state.wantsAdmin && extractedSomethingNew && !isGreetingOnly && hasQuestionMarker;",
   "",
-  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];"
+  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic, mixedIntent } }];"
 ].join('\n');
 
 // ===== ข้อมูลค่าใช้จ่ายจริงต่อมหาวิทยาลัย/ระยะเวลา (อ้างอิงเอกสาร 01-04 + General_Information ปี 2569) =====
@@ -190,14 +193,19 @@ const forcedAnswerCode = [
   "    'น้องอ่านรายละเอียดก่อนได้เลยนะคะ สนใจสมัครแจ้งพี่ได้เลยค่ะ';",
   "}",
   "",
+  "// เคสผสม (ตอบข้อมูล+มีคำถามแทรกในข้อความเดียวกัน): ต่อท้ายคำตอบปกติด้วยข้อความส่งต่อแอดมิน ไม่ปล่อยให้คำถามแทรกหลุดไปเงียบๆ",
+  "if (mixedIntent && forcedAnswer && !forcedAnswer.includes('[ติดต่อแอดมิน]')) {",
+  "  forcedAnswer += '\\n\\nนอกจากนี้พี่เห็นว่าน้องมีถามคำถามอื่นมาด้วย เดี๋ยวพี่ให้เจ้าหน้าที่ Dilion Education ช่วยตอบเพิ่มเติมให้นะคะ [ติดต่อแอดมิน]';",
+  "}",
+  "",
   "state.forcedAnswer = forcedAnswer;"
 ].join('\n');
 
 const extractNode = wf.nodes.find(n => n.name === 'Extract Info (Deterministic)');
 extractNode.parameters.jsCode = extractCode.replace(
-  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];",
+  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic, mixedIntent } }];",
   ""
-) + '\n' + forcedAnswerCode + '\nreturn [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];';
+) + '\n' + forcedAnswerCode + '\nreturn [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic, mixedIntent } }];';
 
 // ===== Merge Answer: ใช้ forcedAnswer ตรงๆ ถ้ามี ไม่ผ่าน AI เพื่อกันมั่วราคา =====
 const mergeNode = wf.nodes.find(n => n.name === 'Merge Answer');
