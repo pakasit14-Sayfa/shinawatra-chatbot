@@ -24,6 +24,10 @@ const extractCode = [
   "state.history.push({ role: 'user', content: rawMessage });",
   "const text = rawMessage.toLowerCase();",
   "const numbers = (rawMessage.match(/\\d+/g) || []).map(Number);",
+  "// snapshot ก่อนแยกข้อมูล ใช้เช็คทีหลังว่าข้อความนี้ \"ให้ข้อมูลจริง\" หรือแค่ถามคำถามอื่นแทรก (กันบั๊กวนถามข้อมูลซ้ำทั้งที่ลูกค้าถามคำถามอื่นมา)",
+  "const fieldsBefore = JSON.stringify({age: state.age, hasBasic: state.hasBasic, beenChina: state.beenChina, city: state.city, university: state.university, duration: state.duration, shanghaiTrack: state.shanghaiTrack});",
+  "const hasQuestionMarker = /ไหม|มั้ย|ม้าย|หรอ|ป่าว|เท่าไหร่|เท่าไร|กี่|ยังไง|อย่างไร|ทำไม|ไหน|เมื่อไหร่|ใช่ไหม|หรือเปล่า|บ้างคะ|บ้างครับ|อะไรบ้าง/.test(text);",
+  "const isGreetingOnly = /^(สวัสดี|หวัดดี|หัดดี|ดีครับ|ดีค่ะ|hi|hello)/.test(text.trim());",
   "",
   "// ----- บีบเมืองตาม pageType ถ้าเป็นเพจเฉพาะเมือง (เพจรวม/LINE ค่อยถามทีหลัง) -----",
   "const CITY_BY_PAGE = { guangzhou: 'Guangzhou', shanghai: 'Shanghai', weihai: 'Weihai', harbin: 'Harbin' };",
@@ -98,7 +102,13 @@ const extractCode = [
   "  && state.duration && (state.city !== 'Shanghai' || state.shanghaiTrack);",
   "if (detailReady) state.detailGiven = true;",
   "",
-  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady } }];"
+  "// ----- ตรวจว่าข้อความนี้เป็นคำถามแทรกนอกเหนือจากที่บอทคัดกรองได้ (เช่น ไฟล์ทบิน, วีซ่าเชิงลึก, เรื่องเทคนิคอื่นๆ) -----",
+  "// เช็คโดยดูว่า \"ไม่ได้ทำให้ข้อมูลที่เก็บไว้เปลี่ยนแปลงเลย\" + มีคำถาม + ไม่ใช่แค่ทักทาย -> ถือเป็นคำถามนอกเรื่อง ต้องส่งต่อแอดมิน ห้ามวนถามข้อมูลซ้ำทับคำถามลูกค้า",
+  "const fieldsAfter = JSON.stringify({age: state.age, hasBasic: state.hasBasic, beenChina: state.beenChina, city: state.city, university: state.university, duration: state.duration, shanghaiTrack: state.shanghaiTrack});",
+  "const extractedSomethingNew = fieldsBefore !== fieldsAfter;",
+  "const offTopic = !state.wantsAdmin && !extractedSomethingNew && !isGreetingOnly && hasQuestionMarker;",
+  "",
+  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];"
 ].join('\n');
 
 // ===== ข้อมูลค่าใช้จ่ายจริงต่อมหาวิทยาลัย/ระยะเวลา (อ้างอิงเอกสาร 01-04 + General_Information ปี 2569) =====
@@ -109,6 +119,9 @@ const forcedAnswerCode = [
   "",
   "if (state.wantsAdmin) {",
   "  forcedAnswer = 'ขอบคุณที่สนใจสมัครเรียนนะคะ เดี๋ยวพี่จะให้เจ้าหน้าที่ Dilion Education ติดต่อกลับไปดูแลเรื่องเอกสาร/ฟอร์มสมัครให้นะคะ';",
+  "} else if (offTopic) {",
+  "  // แท็ก [ติดต่อแอดมิน] จะถูกตัดออกก่อนส่งถึงลูกค้า (message-delivery.js) แต่ backend (server.js) ใช้แท็กนี้จับเพื่อบันทึก Google Sheets + แจ้ง Telegram",
+  "  forcedAnswer = 'เดี๋ยวพี่ให้เจ้าหน้าที่ Dilion Education ติดต่อไปให้ข้อมูลเพิ่มเติมนะคะ [ติดต่อแอดมิน]';",
   "} else if (!infoComplete) {",
   "  const need = [];",
   "  if (state.age === null) need.push('อายุเท่าไหร่');",
@@ -182,9 +195,9 @@ const forcedAnswerCode = [
 
 const extractNode = wf.nodes.find(n => n.name === 'Extract Info (Deterministic)');
 extractNode.parameters.jsCode = extractCode.replace(
-  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady } }];",
+  "return [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];",
   ""
-) + '\n' + forcedAnswerCode + '\nreturn [{ json: { ...state, userId, pageType, infoComplete, detailReady } }];';
+) + '\n' + forcedAnswerCode + '\nreturn [{ json: { ...state, userId, pageType, infoComplete, detailReady, offTopic } }];';
 
 // ===== Merge Answer: ใช้ forcedAnswer ตรงๆ ถ้ามี ไม่ผ่าน AI เพื่อกันมั่วราคา =====
 const mergeNode = wf.nodes.find(n => n.name === 'Merge Answer');
